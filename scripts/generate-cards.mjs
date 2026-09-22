@@ -2,7 +2,7 @@ import sharp from 'sharp';
 import fs from 'fs/promises';
 import QRCode from 'qrcode';
 
-const SITE_BASE_URL = process.env.SITE_URL || 'https://aves-xr-guajira.vercel.app';
+const SITE_BASE_URL = process.env.SITE_URL || 'https://aves-guajira-xr.vercel.app';
 
 const BIRDS_CARDS = [
   {

@@ -1,0 +1,21 @@
+# Ignore huge raw source folders
+Buco-gargantirrufo/
+Flamenco Americano/
+Palomita Escamosa/
+Rey Guajiro/
+Turpial Venezolano/
+
+# Ignore local blender outputs and temp
+modelos_anotados/
+temp_textures/
+__pycache__/
+
+# Ignore installers and executables
+*.msi
+*.exe
+
+# Ignore local development files
+node_modules/
+.git/
+.vscode/
+.idea/
