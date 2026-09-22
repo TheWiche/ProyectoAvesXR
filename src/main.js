@@ -5,6 +5,7 @@
 
 // Import model-viewer as a side-effect (registers the custom element)
 import '@google/model-viewer'
+import QRCode from 'qrcode'
 
 // ──────────────────────────────────────────────────────────
 // DATA: Catálogo de aves con modelos limpios y modelos anotados para AR
@@ -110,6 +111,15 @@ const statFamily      = document.getElementById('stat-family')
 const statSize        = document.getElementById('stat-size')
 const statStatus      = document.getElementById('stat-status')
 const infoCard        = document.getElementById('bird-info-card')
+
+// AR Modal fields
+const arModalOverlay  = document.getElementById('ar-modal-overlay')
+const modalCloseBtn   = document.getElementById('modal-close-btn')
+const modalBirdName   = document.getElementById('modal-bird-name')
+const modalQrImg      = document.getElementById('modal-qr-img')
+const modalDirectLink = document.getElementById('modal-direct-link')
+const modalCopyBtn    = document.getElementById('modal-copy-btn')
+const copyBtnText     = document.getElementById('copy-btn-text')
 
 // ──────────────────────────────────────────────────────────
 // STATE
@@ -241,42 +251,112 @@ function toggleFullscreen () {
 }
 
 // ──────────────────────────────────────────────────────────
-// AR ACTIVATION INTERCEPTOR (Ensure Annotated Model in AR)
+// AR LAUNCHER & MODAL SYSTEM
 // ──────────────────────────────────────────────────────────
-if (arButton) {
-  arButton.addEventListener('click', async (e) => {
-    const bird = BIRDS[currentIndex]
-    if (bird && bird.annotatedModel) {
-      e.stopPropagation()
-      e.preventDefault()
 
-      console.info(`[AR] Swapping to annotated model for AR experience: ${bird.annotatedModel}`)
-      showLoading()
-      viewer.setAttribute('src', bird.annotatedModel)
+/** Open Desktop QR Modal for current bird */
+async function openARModal (bird) {
+  if (!arModalOverlay) return
+  if (modalBirdName) modalBirdName.textContent = bird.commonName
 
-      const triggerAR = () => {
-        hideLoading()
-        viewer.activateAR()
-      }
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  const siteUrl = isLocal ? 'https://aves-guajira-xr.vercel.app' : window.location.origin
+  const arUrl = `${siteUrl}/ar.html?bird=${bird.id}`
 
-      viewer.addEventListener('load', triggerAR, { once: true })
-      // Fallback in case load already finished or cached
-      setTimeout(triggerAR, 750)
-    }
-  }, true)
+  try {
+    const qrDataUrl = await QRCode.toDataURL(arUrl, {
+      width: 220,
+      margin: 1,
+      color: { dark: '#081408', light: '#ffffff' }
+    })
+    if (modalQrImg) modalQrImg.src = qrDataUrl
+  } catch (err) {
+    console.error('Error generating QR code:', err)
+  }
+
+  if (modalDirectLink) modalDirectLink.href = arUrl
+  arModalOverlay.classList.remove('hidden')
 }
 
-// When exiting AR, restore the clean model for desktop/mobile browser view if labels were not explicitly toggled
-viewer.addEventListener('ar-status', (event) => {
-  console.info('[AR] Status:', event.detail.status)
-  if (event.detail.status === 'not-presenting') {
-    const bird = BIRDS[currentIndex]
-    if (!isShowingAnnotated && bird && viewer.getAttribute('src') !== bird.model) {
-      console.info('[AR] Restoring clean model for web browser view')
-      viewer.setAttribute('src', bird.model)
-    }
+/** Close AR Modal */
+function closeARModal () {
+  if (arModalOverlay) arModalOverlay.classList.add('hidden')
+}
+
+// Modal event handlers
+if (modalCloseBtn) {
+  modalCloseBtn.addEventListener('click', closeARModal)
+}
+if (arModalOverlay) {
+  arModalOverlay.addEventListener('click', (e) => {
+    if (e.target === arModalOverlay) closeARModal()
+  })
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && arModalOverlay && !arModalOverlay.classList.contains('hidden')) {
+    closeARModal()
   }
 })
+
+if (modalCopyBtn) {
+  modalCopyBtn.addEventListener('click', async () => {
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    const siteUrl = isLocal ? 'https://aves-guajira-xr.vercel.app' : window.location.origin
+    const arUrl = `${siteUrl}/ar.html?bird=${BIRDS[currentIndex].id}`
+    try {
+      await navigator.clipboard.writeText(arUrl)
+      if (copyBtnText) copyBtnText.textContent = '¡Copiado!'
+      setTimeout(() => { if (copyBtnText) copyBtnText.textContent = 'Copiar enlace AR' }, 2200)
+    } catch (e) {
+      console.warn('Clipboard write failed:', e)
+    }
+  })
+}
+
+/** Launch AR Experience (Direct Camera on Mobile, Modal on Desktop) */
+function launchAR () {
+  const bird = BIRDS[currentIndex]
+  if (!bird) return
+
+  const isAndroid = /android/i.test(navigator.userAgent)
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
+
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  const siteUrl = isLocal ? 'https://aves-guajira-xr.vercel.app' : window.location.origin
+
+  const modelFullUrl = `${siteUrl}/${bird.annotatedModel}`
+  const fallbackWebUrl = `${siteUrl}/?bird=${bird.id}`
+
+  console.info(`[AR] Launching AR for ${bird.commonName} (Android: ${isAndroid}, iOS: ${isIOS})`)
+
+  if (isAndroid) {
+    // Direct launch into Google ARCore Scene Viewer camera mode:
+    // mode=ar_only opens the camera feed directly!
+    const sceneViewerIntent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelFullUrl)}&mode=ar_only&title=${encodeURIComponent(bird.commonName)}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackWebUrl)};end;`
+    window.location.href = sceneViewerIntent
+  } else if (isIOS) {
+    // Direct Quick Look on iOS Safari
+    const usdzUrl = `${siteUrl}/${bird.iosSrc}`
+    const a = document.createElement('a')
+    a.setAttribute('rel', 'ar')
+    a.setAttribute('href', usdzUrl)
+    a.appendChild(document.createElement('img'))
+    document.body.appendChild(a)
+    a.click()
+    setTimeout(() => a.remove(), 1000)
+  } else {
+    // Desktop: Show QR Code Modal for mobile scan
+    openARModal(bird)
+  }
+}
+
+if (arButton) {
+  arButton.addEventListener('click', (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    launchAR()
+  })
+}
 
 // ──────────────────────────────────────────────────────────
 // EVENT LISTENERS

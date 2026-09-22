@@ -79,7 +79,7 @@ async function generateCards() {
   const CARD_HEIGHT = 1050;
 
   for (const bird of BIRDS_CARDS) {
-    const birdTargetUrl = `${SITE_BASE_URL}/?bird=${bird.id}`;
+    const birdTargetUrl = `${SITE_BASE_URL}/ar.html?bird=${bird.id}`;
     console.log(`Generating card with QR code for: ${bird.name} (${birdTargetUrl})...`);
 
     // 1. Generate QR Code Buffer

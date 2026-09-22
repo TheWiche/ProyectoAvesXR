@@ -116,23 +116,23 @@
         loading="eager"
         reveal="auto"
       >
-        <!-- AR Button (visible only on AR-capable devices) -->
-        <button slot="ar-button" class="ar-button" id="ar-button">
-          <svg class="ar-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 7V5a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M17 3h2a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M21 17v2a2 2 0 0 1-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M7 21H5a2 2 0 0 1-2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M12 8l-4 2.3v4.4L12 17l4-2.3V10.3L12 8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-          </svg>
-          <span class="ar-button-text">Ver en tu espacio (AR)</span>
-        </button>
-
         <!-- Progress bar slot -->
         <div class="progress-bar" slot="progress-bar">
           <div class="update-bar"></div>
         </div>
       </model-viewer>
+
+      <!-- AR Button (Independent of model-viewer slot to prevent disappearance) -->
+      <button class="ar-button" id="ar-button" type="button" aria-label="Ver en tu espacio (AR)">
+        <svg class="ar-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 7V5a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M17 3h2a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M21 17v2a2 2 0 0 1-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M7 21H5a2 2 0 0 1-2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 8l-4 2.3v4.4L12 17l4-2.3V10.3L12 8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <span class="ar-button-text">Ver en tu espacio (AR)</span>
+      </button>
 
       <!-- Controls row -->
       <div class="viewer-controls">
@@ -200,6 +200,44 @@
     </section>
 
   </main>
+
+  <!-- ═══ AR QR MODAL (DESKTOP / QUICK SCAN) ═══ -->
+  <div class="ar-modal-overlay hidden" id="ar-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-bird-name">
+    <div class="ar-modal">
+      <button class="modal-close" id="modal-close-btn" aria-label="Cerrar modal">&times;</button>
+      <div class="modal-badge">✦ EXPERIENCIA DE REALIDAD AUMENTADA ✦</div>
+      <h2 id="modal-bird-name" class="modal-title">Flamenco Americano</h2>
+      <p class="modal-desc">
+        Escanea este código QR directamente con la cámara de tu celular para proyectar el ave a escala real en tu espacio con sus <strong>5 etiquetas infográficas 3D</strong>.
+      </p>
+      
+      <div class="modal-qr-box">
+        <img id="modal-qr-img" src="" alt="Código QR Realidad Aumentada" width="220" height="220" />
+      </div>
+
+      <div class="modal-actions">
+        <a id="modal-direct-link" href="#" target="_blank" rel="noopener" class="modal-btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          Abrir lanzador AR
+        </a>
+        <button id="modal-copy-btn" class="modal-btn-secondary" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span id="copy-btn-text">Copiar enlace AR</span>
+        </button>
+      </div>
+
+      <p class="modal-footnote">
+        Compatible nativamente con Android (Google ARCore) e iOS (Apple Quick Look).
+      </p>
+    </div>
+  </div>
 
   <!-- ═══ FOOTER ═══ -->
   <footer class="site-footer">

@@ -281,7 +281,9 @@ def process_bird_infographic(bird_id, birds_data_path="birds_data.json", output_
                 filepath=target_path,
                 export_format='GLB',
                 export_apply=True,
-                export_image_format='AUTO'
+                export_image_format='AUTO',
+                export_draco_mesh_compression_enable=True,
+                export_draco_mesh_compression_level=7
             )
             primary_out = target_path
         else:
