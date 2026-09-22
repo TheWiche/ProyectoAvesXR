@@ -197,8 +197,23 @@ Si notaste pausas durante la ejecución, se debió a tres procesos computacional
    - La máquina ejecutó la red neuronal sobre los 5 pósteres en modo CPU (onnxruntime), calculando máscaras de canal alfa pixel por pixel con refinamiento de bordes (*alpha matting*).
 3. **Compresión geométrica y de texturas 3D:**
    - El proceso de `gltf-transform` desarmó mallas de cientos de miles de polígonos, ejecutó algoritmos de simplificación cuadrática, recodificó texturas a WebP y corrió el compresor Draco para cada ave.
-4. **Subida inicial a Vercel:**
-   - Antes de optimizar, se intentó subir un paquete que incluía los modelos originales no optimizados (~890 MB). Una vez optimizados, los siguientes despliegues tardaron **menos de 15 segundos**.
+### Fase 9: Realidad Aumentada sobre Tarjetas Físicas (Image Tracking con MindAR)
+Para lograr que las aves emerjan ancladas a una tarjeta física con **etiquetas anatómicas flotantes y líneas conectoras** (idéntico al estilo infográfico médico/biológico de referencia):
+1. **Generación de Tarjetas Coleccionables:**
+   - Se diseñaron 5 fichas gráficas de alto contraste (`scripts/generate-cards.mjs`) con marcos triples, retículas de anclaje, dianas en las esquinas y metadatos taxonómicos para generar cientos de puntos de seguimiento estables.
+   - Se creó la página interactiva e imprimible `public/cards.html` con soporte nativo de impresión (`Ctrl + P` en formato vertical) y descarga directa de los PNGs.
+2. **Compilación de Marcadores (`targets.mind`):**
+   - Se implementó un pipeline automatizado (`scripts/run-compiler.mjs` y `public/compile.html`) que extrajo los puntos característicos ORB y árboles de escala piramidal en GPU/WebGL.
+   - Se compiló el archivo unificado `public/targets/targets.mind` (1.75 MB) conteniendo los 5 objetivos listos para ser procesados por la cámara móvil en tiempo real.
+3. **Escáner AR con Callouts Anatómicos (`public/scanner.html`):**
+   - Desarrollado sobre MindAR + A-Frame con detección multi-target.
+   - Cada ave cuenta con 3 etiquetas tridimensionales flotantes (cajas semitransparentes en azul/dorado de alta legibilidad) con líneas conectoras proyectadas hacia sus partes clave:
+     - **Buco:** Pico Robusto, Garganta Rufa, Plumaje Críptico.
+     - **Flamenco:** Pico Filtrador, Plumaje Carmesí, Patas Zancudas.
+     - **Paloma:** Anillo Orbital, Patrón Escamoso, Cola Escalonada.
+     - **Rey Guajiro:** Pico Afilado, Corona Carmesí, Ocelos Alares.
+     - **Turpial:** Capucha Negra, Pecho Amarillo Oro, Banda Alar Blanca.
+   - Incluye retícula animada de escaneo, tarjetas flotantes con información de la especie detectada y respuesta háptica al anclar el modelo.
 
 ---
 
@@ -267,3 +282,4 @@ npx vercel --prod --yes
 
 ---
 **Documento generado y validado con éxito para el proyecto Aves de la Guajira XR.**
+

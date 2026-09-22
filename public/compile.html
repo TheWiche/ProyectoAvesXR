@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>MindAR Compiler</title>
+</head>
+<body style="background:#111; color:#fff; font-family:sans-serif; padding:20px;">
+  <h2>Compilador de Marcadores MindAR</h2>
+  <div id="status">Iniciando...</div>
+  <div id="progress" style="font-size:24px; color:#4caf78; margin:20px 0;">0%</div>
+
+  <script type="module">
+    import { Compiler } from 'https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js';
+
+    async function logToServer(msg) {
+      try {
+        await fetch('/log', { method: 'POST', body: String(msg) });
+      } catch (e) {}
+    }
+
+    const TARGET_FILES = [
+      '/targets/compiler-buco.png',
+      '/targets/compiler-flamenco.png',
+      '/targets/compiler-paloma.png',
+      '/targets/compiler-rey_guajiro.png',
+      '/targets/compiler-turpial.png'
+    ];
+
+    async function loadImage(url) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = (e) => reject(new Error('Failed to load ' + url));
+        img.src = url;
+      });
+    }
+
+    async function compile() {
+      const status = document.getElementById('status');
+      const progress = document.getElementById('progress');
+
+      try {
+        await logToServer('Cargando 5 imagenes optimizadas (480x600)...');
+        const images = [];
+        for (const file of TARGET_FILES) {
+          const img = await loadImage(file);
+          images.push(img);
+        }
+        await logToServer('Imagenes cargadas OK. Creando Compiler...');
+
+        const compiler = new Compiler();
+        await logToServer('Iniciando compilacion de targets...');
+
+        let lastPct = -1;
+        await compiler.compileImageTargets(images, async (p) => {
+          const pct = Math.floor(p);
+          if (pct !== lastPct) {
+            lastPct = pct;
+            progress.textContent = pct + '%';
+            await logToServer('Compilando: ' + pct + '%');
+          }
+        });
+
+        await logToServer('Compilacion terminada. Exportando datos...');
+        const buffer = await compiler.exportData();
+        await logToServer('Tamano buffer: ' + buffer.byteLength + ' bytes');
+
+        // Convert buffer to base64 in chunks
+        const bytes = new Uint8Array(buffer);
+        let binary = '';
+        const chunk = 16384;
+        for (let i = 0; i < bytes.byteLength; i += chunk) {
+          binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+        }
+        const base64 = btoa(binary);
+
+        await logToServer('Enviando a /save-mind (' + Math.round(bytes.byteLength / 1024) + ' KB)...');
+        const res = await fetch('/save-mind', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ base64, size: bytes.byteLength })
+        });
+        await logToServer('Guardado OK: ' + res.status);
+
+      } catch (err) {
+        await logToServer('ERROR: ' + err.message + '\n' + err.stack);
+      }
+    }
+
+    compile();
+  </script>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Escáner AR de Tarjetas · Aves de La Guajira</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦜</text></svg>" />
+
+  <!-- A-Frame and MindAR Scripts -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    :root {
+      --clr-accent: #d4a843;
+      --clr-glow: #00d2ff;
+      --clr-bg: #0f1e0f;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #000;
+      color: #fff;
+    }
+
+    /* UI Overlay */
+    .ar-ui-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    }
+
+    /* Header Bar */
+    .ui-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      pointer-events: auto;
+    }
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 30, 15, 0.85);
+      border: 1px solid var(--clr-accent);
+      backdrop-filter: blur(10px);
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #e8e0d0;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ffaa00;
+      box-shadow: 0 0 10px #ffaa00;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    .status-dot.active {
+      background: #00e676;
+      box-shadow: 0 0 12px #00e676;
+    }
+
+    .ui-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-action {
+      background: rgba(15, 30, 15, 0.85);
+      border: 1px solid var(--clr-accent);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      transition: .2s;
+    }
+    .btn-action:hover {
+      background: var(--clr-accent);
+      color: #0d1a0d;
+    }
+
+    /* Scanning Reticle */
+    .scanner-guide {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(75vw, 320px);
+      aspect-ratio: 4 / 5;
+      border: 2px dashed rgba(212, 168, 67, 0.5);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      pointer-events: none;
+      transition: opacity .4s ease;
+    }
+    .scanner-guide.hidden {
+      opacity: 0;
+    }
+    .scanner-laser {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #00d2ff, transparent);
+      box-shadow: 0 0 15px #00d2ff;
+      animation: scanLaser 2.2s ease-in-out infinite;
+    }
+    @keyframes scanLaser {
+      0% { top: 10px; opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { top: calc(100% - 14px); opacity: 0; }
+    }
+    .scanner-hint {
+      background: rgba(0,0,0,0.7);
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #d4a843;
+      text-align: center;
+    }
+
+    /* Bottom Info Card (when bird is detected) */
+    .ui-bottom {
+      pointer-events: auto;
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .detected-card {
+      background: rgba(15, 30, 15, 0.92);
+      border: 1px solid var(--clr-accent);
+      backdrop-filter: blur(12px);
+      border-radius: 18px;
+      padding: 14px 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      transform: translateY(120%);
+      opacity: 0;
+      transition: transform .35s cubic-bezier(.2,0,.2,1), opacity .3s;
+    }
+    .detected-card.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .detected-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .detected-name {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .detected-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: rgba(212, 168, 67, 0.2);
+      color: var(--clr-accent);
+      padding: 2px 8px;
+      border-radius: 99px;
+      border: 1px solid rgba(212, 168, 67, 0.4);
+    }
+    .detected-sci {
+      font-size: 0.85rem;
+      font-style: italic;
+      color: #9aaa8a;
+      margin-bottom: 8px;
+      font-family: Georgia, serif;
+    }
+    .detected-tip {
+      font-size: 0.78rem;
+      color: #c0d0c0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Floating anatomical tags style for A-Frame text/planes */
+    .a-enter-vr { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- AR UI Overlay -->
+  <div class="ar-ui-overlay">
+    <!-- Top Bar -->
+    <div class="ui-top">
+      <div class="badge-status">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Escaneando tarjeta...</span>
+      </div>
+      <div class="ui-buttons">
+        <a href="cards.html" target="_blank" class="btn-action" title="Ver e imprimir tarjetas">
+          🎴 Tarjetas
+        </a>
+        <a href="index.html" class="btn-action" title="Volver a la galería 3D">
+          ✕ Salir
+        </a>
+      </div>
+    </div>
+
+    <!-- Center Reticle / Scanning Guide -->
+    <div class="scanner-guide" id="scanner-guide">
+      <div class="scanner-laser"></div>
+      <span class="scanner-hint">Enfoca la tarjeta de cualquier ave</span>
+    </div>
+
+    <!-- Bottom Detected Card Info -->
+    <div class="ui-bottom">
+      <div class="detected-card" id="detected-card">
+        <div class="detected-header">
+          <span class="detected-name" id="bird-name">Flamenco Americano</span>
+          <span class="detected-tag" id="bird-tag">FICHA AR 3D</span>
+        </div>
+        <div class="detected-sci" id="bird-sci">Phoenicopterus ruber</div>
+        <div class="detected-tip">
+          <span>✨</span>
+          <span>Mueve la tarjeta con la mano: el ave y sus etiquetas anatómicas siguen la tarjeta en tiempo real.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       A-FRAME + MINDAR SCENE (Multi-target Image Tracking)
+       ═══════════════════════════════════════════════════════════════ -->
+  <a-scene
+    mindar-image="imageTargetSrc: targets/targets.mind; autoStart: true; maxTrack: 2; uiScanning: no; uiLoading: no;"
+    embedded
+    color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights: true, alpha: true"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+  >
+    <a-assets timeout="30000">
+      <a-asset-item id="model-buco" src="models/buco.glb"></a-asset-item>
+      <a-asset-item id="model-flamenco" src="models/flamenco.glb"></a-asset-item>
+      <a-asset-item id="model-paloma" src="models/paloma.glb"></a-asset-item>
+      <a-asset-item id="model-rey" src="models/rey_guajiro.glb"></a-asset-item>
+      <a-asset-item id="model-turpial" src="models/turpial.glb"></a-asset-item>
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <!-- Ambient & Directional Lighting for rich feathers -->
+    <a-light type="ambient" intensity="1.2" color="#ffffff"></a-light>
+    <a-light type="directional" intensity="1.5" position="1 2 1" color="#fffaf0"></a-light>
+
+    <!-- ═════════════════════════════════════════════════════════
+         TARGET 0: BUCO GARGANTRIRRUFO (card-buco.png)
+         ═════════════════════════════════════════════════════════ -->
+    <a-entity mindar-image-target="targetIndex: 0" id="target-0">
+      <!-- 3D Bird Model anchored to card -->
+      <a-gltf-model
+        src="#model-buco"
+        position="0 0 0.05"
+        scale="0.85 0.85 0.85"
+        rotation="0 0 0"
+      ></a-gltf-model>
+
+      <!-- Anatomical Label 1: Pico Robusto -->
+      <a-entity position="-0.42 0.32 0.15">
+        <a-plane width="0.48" height="0.1" color="#0a2a4a" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="PICO ROBUSTO" align="center" width="1.5" color="#00e5ff" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: 0.24 0 0; end: 0.42 -0.06 -0.08; color: #00e5ff; opacity: 0.85"></a-entity>
+      </a-entity>
+
+      <!-- Anatomical Label 2: Garganta Rufa -->
+      <a-entity position="-0.45 0.05 0.15">
+        <a-plane width="0.48" height="0.1" color="#4a220a" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="GARGANTA RUFA" align="center" width="1.5" color="#ffaa00" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: 0.24 0 0; end: 0.44 0.02 -0.08; color: #ffaa00; opacity: 0.85"></a-entity>
+      </a-entity>
+
+      <!-- Anatomical Label 3: Plumaje Críptico -->
+      <a-entity position="0.45 0.22 0.15">
+        <a-plane width="0.52" height="0.1" color="#0a2a4a" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="PLUMAJE CRIPTICO" align="center" width="1.5" color="#00e5ff" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: -0.26 0 0; end: -0.42 -0.05 -0.08; color: #00e5ff; opacity: 0.85"></a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- ═════════════════════════════════════════════════════════
+         TARGET 1: FLAMENCO AMERICANO (card-flamenco.png)
+         ═════════════════════════════════════════════════════════ -->
+    <a-entity mindar-image-target="targetIndex: 1" id="target-1">
+      <a-gltf-model
+        src="#model-flamenco"
+        position="0 0 0.05"
+        scale="0.8 0.8 0.8"
+        rotation="0 0 0"
+      ></a-gltf-model>
+
+      <!-- Anatomical Label 1: Pico Curvo Filtrador -->
+      <a-entity position="0.48 0.42 0.15">
+        <a-plane width="0.54" height="0.1" color="#0a2a4a" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="PICO FILTRADOR" align="center" width="1.5" color="#00e5ff" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: -0.27 0 0; end: -0.44 -0.08 -0.08; color: #00e5ff; opacity: 0.85"></a-entity>
+      </a-entity>
+
+      <!-- Anatomical Label 2: Plumaje Carmesí -->
+      <a-entity position="-0.46 0.2 0.15">
+        <a-plane width="0.52" height="0.1" color="#4a1525" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="PLUMAJE CARMESI" align="center" width="1.5" color="#ff6b8b" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: 0.26 0 0; end: 0.42 -0.02 -0.08; color: #ff6b8b; opacity: 0.85"></a-entity>
+      </a-entity>
+
+      <!-- Anatomical Label 3: Patas Zancudas -->
+      <a-entity position="-0.45 -0.32 0.15">
+        <a-plane width="0.5" height="0.1" color="#0a2a4a" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="PATAS ZANCUDAS" align="center" width="1.5" color="#00e5ff" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: 0.25 0 0; end: 0.42 0.08 -0.08; color: #00e5ff; opacity: 0.85"></a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- ═════════════════════════════════════════════════════════
+         TARGET 2: PALOMITA ESCAMOSA (card-paloma.png)
+         ═════════════════════════════════════════════════════════ -->
+    <a-entity mindar-image-target="targetIndex: 2" id="target-2">
+      <a-gltf-model
+        src="#model-paloma"
+        position="0 0 0.05"
+        scale="0.85 0.85 0.85"
+        rotation="0 0 0"
+      ></a-gltf-model>
+
+      <!-- Anatomical Label 1: Ojo Orbital -->
+      <a-entity position="-0.42 0.28 0.15">
+        <a-plane width="0.46" height="0.1" color="#0a2a4a" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="ANILLO ORBITAL" align="center" width="1.5" color="#00e5ff" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: 0.23 0 0; end: 0.38 -0.04 -0.08; color: #00e5ff; opacity: 0.85"></a-entity>
+      </a-entity>
+
+      <!-- Anatomical Label 2: Patrón Escamoso -->
+      <a-entity position="0.45 0.15 0.15">
+        <a-plane width="0.52" height="0.1" color="#352e18" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="PATRON ESCAMOSO" align="center" width="1.5" color="#f1d070" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: -0.26 0 0; end: -0.42 -0.02 -0.08; color: #f1d070; opacity: 0.85"></a-entity>
+      </a-entity>
+
+      <!-- Anatomical Label 3: Cola Escalonada -->
+      <a-entity position="0.46 -0.18 0.15">
+        <a-plane width="0.5" height="0.1" color="#0a2a4a" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="COLA ESCALONADA" align="center" width="1.5" color="#00e5ff" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: -0.25 0 0; end: -0.38 0.06 -0.08; color: #00e5ff; opacity: 0.85"></a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- ═════════════════════════════════════════════════════════
+         TARGET 3: REY GUAJIRO (card-rey_guajiro.png)
+         ═════════════════════════════════════════════════════════ -->
+    <a-entity mindar-image-target="targetIndex: 3" id="target-3">
+      <a-gltf-model
+        src="#model-rey"
+        position="0 0 0.05"
+        scale="0.8 0.8 0.8"
+        rotation="0 0 0"
+      ></a-gltf-model>
+
+      <!-- Anatomical Label 1: Pico Afilado -->
+      <a-entity position="-0.44 0.35 0.15">
+        <a-plane width="0.46" height="0.1" color="#0a2a4a" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="PICO AFILADO" align="center" width="1.5" color="#00e5ff" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: 0.23 0 0; end: 0.40 -0.06 -0.08; color: #00e5ff; opacity: 0.85"></a-entity>
+      </a-entity>
+
+      <!-- Anatomical Label 2: Corona Carmesí -->
+      <a-entity position="-0.42 0.12 0.15">
+        <a-plane width="0.48" height="0.1" color="#4a1810" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="CORONA CARMESI" align="center" width="1.5" color="#ff7a50" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: 0.24 0 0; end: 0.38 0.04 -0.08; color: #ff7a50; opacity: 0.85"></a-entity>
+      </a-entity>
+
+      <!-- Anatomical Label 3: Ocelos Alares -->
+      <a-entity position="0.46 0.18 0.15">
+        <a-plane width="0.48" height="0.1" color="#0a2a4a" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="OCELOS ALARES" align="center" width="1.5" color="#00e5ff" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: -0.24 0 0; end: -0.40 -0.04 -0.08; color: #00e5ff; opacity: 0.85"></a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- ═════════════════════════════════════════════════════════
+         TARGET 4: TURPIAL DE LA GUAJIRA (card-turpial.png)
+         ═════════════════════════════════════════════════════════ -->
+    <a-entity mindar-image-target="targetIndex: 4" id="target-4">
+      <a-gltf-model
+        src="#model-turpial"
+        position="0 0 0.05"
+        scale="0.85 0.85 0.85"
+        rotation="0 0 0"
+      ></a-gltf-model>
+
+      <!-- Anatomical Label 1: Capucha Negra -->
+      <a-entity position="0.45 0.35 0.15">
+        <a-plane width="0.48" height="0.1" color="#0a2a4a" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="CAPUCHA NEGRA" align="center" width="1.5" color="#00e5ff" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: -0.24 0 0; end: -0.40 -0.06 -0.08; color: #00e5ff; opacity: 0.85"></a-entity>
+      </a-entity>
+
+      <!-- Anatomical Label 2: Pecho Amarillo Oro -->
+      <a-entity position="-0.44 0.12 0.15">
+        <a-plane width="0.5" height="0.1" color="#423508" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="PECHO AMARILLO" align="center" width="1.5" color="#ffd000" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: 0.25 0 0; end: 0.40 -0.02 -0.08; color: #ffd000; opacity: 0.85"></a-entity>
+      </a-entity>
+
+      <!-- Anatomical Label 3: Banda Alar Blanca -->
+      <a-entity position="0.46 0.05 0.15">
+        <a-plane width="0.5" height="0.1" color="#0a2a4a" material="opacity: 0.92; transparent: true"></a-plane>
+        <a-text value="BANDA ALAR" align="center" width="1.5" color="#00e5ff" position="0 0 0.01" font="roboto"></a-text>
+        <a-entity line="start: -0.25 0 0; end: -0.40 0.04 -0.08; color: #00e5ff; opacity: 0.85"></a-entity>
+      </a-entity>
+    </a-entity>
+
+  </a-scene>
+
+  <!-- Interaction & Event Handler Script -->
+  <script>
+    const BIRDS_DATA = [
+      { name: 'Buco Gargantirrufo', sci: 'Malacoptila rufa · Piciformes' },
+      { name: 'Flamenco Americano', sci: 'Phoenicopterus ruber · Phoenicopteriformes' },
+      { name: 'Palomita Escamosa', sci: 'Columbina squammata · Columbiformes' },
+      { name: 'Rey Guajiro', sci: 'Eurypyga helias · Eurypygiformes' },
+      { name: 'Turpial de La Guajira', sci: 'Icterus icterus · Passeriformes' }
+    ];
+
+    const statusDot = document.getElementById('status-dot');
+    const statusText = document.getElementById('status-text');
+    const scannerGuide = document.getElementById('scanner-guide');
+    const detectedCard = document.getElementById('detected-card');
+    const birdName = document.getElementById('bird-name');
+    const birdSci = document.getElementById('bird-sci');
+
+    let activeTarget = -1;
+
+    for (let i = 0; i < 5; i++) {
+      const targetEl = document.getElementById('target-' + i);
+      if (!targetEl) continue;
+
+      targetEl.addEventListener('targetFound', () => {
+        activeTarget = i;
+        const bird = BIRDS_DATA[i];
+
+        statusDot.classList.add('active');
+        statusText.textContent = 'Ave detectada: ' + bird.name;
+        scannerGuide.classList.add('hidden');
+
+        birdName.textContent = bird.name;
+        birdSci.textContent = bird.sci;
+        detectedCard.classList.add('visible');
+
+        // Play gentle haptic vibration if supported on phone
+        if (navigator.vibrate) navigator.vibrate(50);
+      });
+
+      targetEl.addEventListener('targetLost', () => {
+        if (activeTarget === i) {
+          activeTarget = -1;
+          statusDot.classList.remove('active');
+          statusText.textContent = 'Buscando tarjeta...';
+          scannerGuide.classList.remove('hidden');
+          detectedCard.classList.remove('visible');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

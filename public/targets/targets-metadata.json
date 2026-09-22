@@ -1,0 +1,152 @@
+[
+  {
+    "id": "buco",
+    "index": 0,
+    "number": "01 / 05",
+    "name": "BUCO GARGANTRIRRUFO",
+    "scientific": "Malacoptila rufa",
+    "order": "PICIFORMES",
+    "family": "Bucconidae",
+    "region": "Serranías de La Guajira",
+    "color": "#d4a843",
+    "bgColor": "#122212",
+    "imageFile": "public/targets/raw/buco.png",
+    "annotations": [
+      {
+        "label": "Pico robusto con vibrisas",
+        "x": "28%",
+        "y": "35%"
+      },
+      {
+        "label": "Garganta rufo-rojiza",
+        "x": "35%",
+        "y": "48%"
+      },
+      {
+        "label": "Plumaje dorsal críptico",
+        "x": "65%",
+        "y": "55%"
+      }
+    ]
+  },
+  {
+    "id": "flamenco",
+    "index": 1,
+    "number": "02 / 05",
+    "name": "FLAMENCO AMERICANO",
+    "scientific": "Phoenicopterus ruber",
+    "order": "PHOENICOPTERIFORMES",
+    "family": "Phoenicopteridae",
+    "region": "Salinas de Manaure",
+    "color": "#e56b6f",
+    "bgColor": "#16221f",
+    "imageFile": "public/targets/raw/flamenco.png",
+    "annotations": [
+      {
+        "label": "Pico filtrador curvo",
+        "x": "65%",
+        "y": "25%"
+      },
+      {
+        "label": "Plumaje carmesí intenso",
+        "x": "45%",
+        "y": "38%"
+      },
+      {
+        "label": "Patas zancudas palmeadas",
+        "x": "38%",
+        "y": "75%"
+      }
+    ]
+  },
+  {
+    "id": "paloma",
+    "index": 2,
+    "number": "03 / 05",
+    "name": "PALOMITA ESCAMOSA",
+    "scientific": "Columbina squammata",
+    "order": "COLUMBIFORMES",
+    "family": "Columbidae",
+    "region": "Desierto de Riohacha y Uribia",
+    "color": "#c5a059",
+    "bgColor": "#1f2018",
+    "imageFile": "public/targets/raw/paloma.png",
+    "annotations": [
+      {
+        "label": "Patrón de escamas dorsales",
+        "x": "55%",
+        "y": "45%"
+      },
+      {
+        "label": "Ojo con anillo orbital",
+        "x": "28%",
+        "y": "32%"
+      },
+      {
+        "label": "Cola escalonada blanca",
+        "x": "78%",
+        "y": "65%"
+      }
+    ]
+  },
+  {
+    "id": "rey_guajiro",
+    "index": 3,
+    "number": "04 / 05",
+    "name": "REY GUAJIRO",
+    "scientific": "Eurypyga helias",
+    "order": "EURYPYGIFORMES",
+    "family": "Eurypygidae",
+    "region": "Serranía de Perijá",
+    "color": "#e07a5f",
+    "bgColor": "#221815",
+    "imageFile": "public/targets/raw/rey_guajiro.png",
+    "annotations": [
+      {
+        "label": "Corona carmesí crestada",
+        "x": "38%",
+        "y": "22%"
+      },
+      {
+        "label": "Ocelos alares solares",
+        "x": "65%",
+        "y": "50%"
+      },
+      {
+        "label": "Pico largo y afilado",
+        "x": "24%",
+        "y": "26%"
+      }
+    ]
+  },
+  {
+    "id": "turpial",
+    "index": 4,
+    "number": "05 / 05",
+    "name": "TURPIAL DE LA GUAJIRA",
+    "scientific": "Icterus icterus",
+    "order": "PASSERIFORMES",
+    "family": "Icteridae",
+    "region": "Alta Guajira - Territorio Wayuu",
+    "color": "#f4a261",
+    "bgColor": "#1c1c14",
+    "imageFile": "public/targets/raw/turpial.png",
+    "annotations": [
+      {
+        "label": "Capucha negra azabache",
+        "x": "68%",
+        "y": "28%"
+      },
+      {
+        "label": "Pecho amarillo oro vivo",
+        "x": "50%",
+        "y": "45%"
+      },
+      {
+        "label": "Banda alar blanca brillante",
+        "x": "55%",
+        "y": "38%"
+      }
+    ]
+  }
+]
