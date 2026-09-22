@@ -30,3 +30,4 @@ for (const file of pngs) {
 }
 
 console.log('\nAll posters optimized!')
+
