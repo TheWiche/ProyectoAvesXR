@@ -22,7 +22,7 @@ const BIRDS = [
     tags:        ['🌿 Bosque de galería', '🇨🇴 La Guajira', '🌳 Serranía'],
     model:       'models/buco.glb',
     poster:      'posters/buco.png',
-    iosSrc:      null,
+    iosSrc:      'models/buco.usdz',
   },
   {
     id:          'flamenco',
@@ -36,7 +36,7 @@ const BIRDS = [
     tags:        ['🏖️ Salinas de Manaure', '🇨🇴 La Guajira', '🦩 Especie emblema'],
     model:       'models/flamenco.glb',
     poster:      'posters/flamenco.png',
-    iosSrc:      null,
+    iosSrc:      'models/flamenco.usdz',
   },
   {
     id:          'paloma',
@@ -50,7 +50,7 @@ const BIRDS = [
     tags:        ['🌵 Desierto guajiro', '🇨🇴 La Guajira', '🕊️ Ave de caminos'],
     model:       'models/paloma.glb',
     poster:      'posters/paloma.png',
-    iosSrc:      null,
+    iosSrc:      'models/paloma.usdz',
   },
   {
     id:          'rey_guajiro',
@@ -64,7 +64,7 @@ const BIRDS = [
     tags:        ['🏞️ Quebradas serranas', '🇨🇴 La Guajira', '✨ Ave insignia'],
     model:       'models/rey_guajiro.glb',
     poster:      'posters/rey_guajiro.png',
-    iosSrc:      null,
+    iosSrc:      'models/rey_guajiro.usdz',
   },
   {
     id:          'turpial',
@@ -78,7 +78,7 @@ const BIRDS = [
     tags:        ['🌵 Alta Guajira', '🇨🇴 La Guajira', '🎵 Canto wayuu'],
     model:       'models/turpial.glb',
     poster:      'posters/turpial.png',
-    iosSrc:      null,
+    iosSrc:      'models/turpial.usdz',
   },
 ]
 
