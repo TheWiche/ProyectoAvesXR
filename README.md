@@ -1,6 +1,6 @@
-# 🦜 Aves XR — Galería de Realidad Aumentada
+# 🦜 Aves XR — Galería de Realidad Aumentada de la Guajira
 
-Galería web interactiva con modelos 3D de **5 aves venezolanas**, soporte completo de **Realidad Aumentada** (WebXR en Android, Scene Viewer en Android, Quick Look en iOS) y un diseño naturalista responsivo.
+Galería web interactiva con modelos 3D de **5 aves de la Guajira**, soporte completo de **Realidad Aumentada** (WebXR en Android, Scene Viewer en Android, Quick Look en iOS) y un diseño naturalista responsivo.
 
 ---
 
@@ -150,3 +150,4 @@ Para habilitar AR en iOS se necesitan archivos `.usdz`. Agrega la ruta en `src/m
 ## 📜 Licencia
 
 MIT — Uso educativo y cultural.
+

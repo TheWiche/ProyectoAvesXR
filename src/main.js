@@ -276,5 +276,6 @@ if (viewer.loaded) {
   showLoading()
 }
 
-console.info('🦜 Aves XR Gallery — iniciado')
+console.info('🦜 Aves de la Guajira XR Gallery — iniciado')
 console.table(BIRDS.map(b => ({ ave: b.commonName, modelo: b.model })))
+
