@@ -33,6 +33,14 @@ yarn-debug.log*
 # Temp
 tmp/
 temp/
+temp_textures/
+__pycache__/
 
+# Installers
+*.msi
+*.exe
+
+# Previews
+modelos_anotados/*.png
 
 .vercel

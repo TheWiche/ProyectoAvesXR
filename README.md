@@ -1,153 +1,83 @@
-# 🦜 Aves XR — Galería de Realidad Aumentada de la Guajira
+# 🦜 Aves XR — Galería de Realidad Aumentada de La Guajira
 
-Galería web interactiva con modelos 3D de **5 aves de la Guajira**, soporte completo de **Realidad Aumentada** (WebXR en Android, Scene Viewer en Android, Quick Look en iOS) y un diseño naturalista responsivo.
-
----
-
-## 📋 Aves incluidas
-
-| # | Nombre común | Nombre científico | Archivo |
-|---|---|---|---|
-| 1 | Buco Gargantirrufo | *Malacoptila rufa* | `buco.glb` (81.6 MB) |
-| 2 | Flamenco Americano | *Phoenicopterus ruber* | `flamenco.glb` (81.4 MB) |
-| 3 | Palomita Escamosa | *Columbina squammata* | `paloma.glb` (26.8 MB) |
-| 4 | Rey Guajiro | *Eurypyga helias* | `rey_guajiro.glb` (49.1 MB) |
-| 5 | Turpial Venezolano | *Icterus icterus* | `turpial.glb` (52.7 MB) |
+Plataforma interactiva WebXR y AR basada en marcadores de imagen para **5 aves emblemáticas de La Guajira colombiana**. Combina una galería 3D para web con un escáner de Realidad Aumentada que proyecta los modelos 3D con **5 etiquetas holográficas flotantes y pines anatómicos** directamente sobre tarjetas físicas.
 
 ---
 
-## 🚀 Inicio rápido (local)
+## 📋 Aves del Proyecto
+
+| # | Especie | Nombre científico | Modelo Limpio (Web) | Modelo Anotado (AR) |
+|---|---|---|---|---|
+| 1 | **Buco Gargantirrufo** | *Malacoptila rufa* | `models/buco.glb` | `models/annotated/buco_con_infografia.glb` |
+| 2 | **Flamenco Americano** | *Phoenicopterus ruber* | `models/flamenco.glb` | `models/annotated/flamenco_con_infografia.glb` |
+| 3 | **Palomita Escamosa** | *Columbina squammata* | `models/paloma.glb` | `models/annotated/paloma_con_infografia.glb` |
+| 4 | **Rey Guajiro (Tigana)** | *Eurypyga helias* | `models/rey_guajiro.glb` | `models/annotated/rey_guajiro_con_infografia.glb` |
+| 5 | **Turpial de La Guajira** | *Icterus icterus* | `models/turpial.glb` | `models/annotated/turpial_con_infografia.glb` |
+
+---
+
+## 🌟 Experiencias del Proyecto
+
+### 1. Visor de Catálogo 3D Web (`index.html`)
+- Visualización interactiva 3D limpia con rotación, zoom y controles de cámara (`model-viewer`).
+- Ficha técnica completa por ave (orden, familia, tamaño, dieta, estado y hábitat).
+- Botón WebXR para proyectar el ave en el suelo en dispositivos móviles compatibles.
+
+### 2. Escáner AR con Tarjetas Físicas (`public/scanner.html`)
+- Reconocimiento y seguimiento de imágenes en tiempo real mediante **MindAR 1.2.5** y **A-Frame 1.4.2**.
+- Al apuntar a la tarjeta de cualquier ave, proyecta en tiempo real el modelo 3D con sus **5 etiquetas infográficas integradas**, las cuales se mueven y rotan de forma sólida junto con la tarjeta:
+  - **Identificación:** Nombre común y científico.
+  - **Biometría:** Medida de longitud/altura y peso promedio.
+  - **Pico y alimentación:** Adaptación anatómica de la especie.
+  - **Plumaje y coloración:** Características diagnósticas del plumaje.
+  - **Extremidades / Vuelo:** Adaptación de alas, zancas o cola.
+
+### 3. Centro de Tarjetas Coleccionables (`public/cards.html`)
+- Página lista para visualizar o imprimir en hoja carta/A4 las 5 tarjetas con diseño de alta calidad y contraste, optimizadas para el tracking del escáner AR.
+
+---
+
+## 🛠️ Pipeline Automatizado 3D (Blender CLI & Pillow)
+
+El proyecto incluye un pipeline completo en Python que automatiza la generación de modelos infográficos:
 
 ```bash
-# 1. Instalar dependencias
+# 1. Generar las 25 texturas de etiquetas en alta resolución
+python generate_labels.py --all
+
+# 2. Inyectar etiquetas 3D con doble cara y líneas guía en Blender
+blender --background --python inject_infographics.py -- --all
+```
+
+- **Materiales auto-iluminados:** `Principled BSDF` con `Emission Strength = 1.3` en tarjetas y `3.0` en guías, garantizando lectura nítida bajo cualquier iluminación en AR.
+- **Lectura en 360°:** Planos dobles con UV invertido en la cara posterior para lectura normal desde cualquier ángulo.
+- **Cálculo de despeje:** Ajuste automático de distancia según el Bounding Box de cada especie (desde 18 cm hasta 1.45 m).
+
+---
+
+## 🚀 Inicio Rápido (Local)
+
+```bash
+# Instalar dependencias
 npm install
 
-# 2. Servidor de desarrollo con hot-reload
+# Iniciar servidor de desarrollo
 npm run dev
 # → Abre http://localhost:5173
 ```
 
----
-
-## 🏗️ Estructura del proyecto
-
-```
-ProyectoAvesXR/
-├── public/
-│   ├── models/          ← Modelos 3D (.glb)
-│   │   ├── buco.glb
-│   │   ├── flamenco.glb
-│   │   ├── paloma.glb
-│   │   ├── rey_guajiro.glb
-│   │   └── turpial.glb
-│   └── posters/         ← Imágenes de carga/thumbnails
-│       ├── buco.png
-│       ├── flamenco.png
-│       ├── paloma.png
-│       ├── rey_guajiro.png
-│       └── turpial.png
-├── src/
-│   ├── main.js          ← Lógica principal + datos de aves
-│   └── style.css        ← Estilos (paleta naturalista)
-├── .github/
-│   └── workflows/
-│       └── deploy.yml   ← GitHub Actions → Pages
-├── index.html           ← Entrada principal
-├── vite.config.js       ← Configuración Vite
-├── .gitattributes       ← Git LFS para archivos .glb > 50 MB
-└── package.json
+Para probar en el teléfono conectado a la misma red WiFi:
+```bash
+npx vite --host
 ```
 
 ---
 
-## 📦 Build de producción
+## 📦 Compilación para Producción
 
 ```bash
 npm run build
-# Genera la carpeta dist/ lista para servir
+# Genera los archivos estáticos en dist/
 ```
 
----
-
-## 🌐 Despliegue
-
-### Opción A — GitHub Pages (recomendado, gratuito)
-
-1. Crea un repositorio en GitHub: `github.com/TU_USUARIO/aves-xr-gallery`
-
-2. Conecta y sube:
-```bash
-git remote add origin https://github.com/TU_USUARIO/aves-xr-gallery.git
-git branch -M main
-git push -u origin main
-```
-
-3. En GitHub → **Settings → Pages** → Source: **GitHub Actions**
-
-4. El workflow `.github/workflows/deploy.yml` construye y despliega automáticamente en cada push a `main`.
-
-5. Tu galería estará en: `https://TU_USUARIO.github.io/aves-xr-gallery/`
-
-> **Nota sobre el `base` en `vite.config.js`:** Si el repositorio se llama diferente a `aves-xr-gallery`, cambia el comentario de `base` en `vite.config.js`:
-> ```js
-> base: '/nombre-de-tu-repo/',
-> ```
-
-### Opción B — Vercel (un clic)
-
-```bash
-npx vercel --prod
-```
-
-### Opción C — Netlify
-
-```bash
-npm run build
-npx netlify deploy --prod --dir=dist
-```
-
----
-
-## ⚠️ Git LFS (archivos grandes)
-
-Los modelos `.glb` se rastrean con **Git LFS**. Para clonar con los modelos:
-
-```bash
-git lfs install    # Solo la primera vez
-git clone https://github.com/TU_USUARIO/aves-xr-gallery.git
-```
-
-Para agregar soporte LFS a un repositorio existente:
-```bash
-git lfs install
-git lfs track "*.glb" "*.usdz"
-git add .gitattributes
-git commit -m "chore: configure Git LFS for 3D models"
-```
-
----
-
-## 📱 Realidad Aumentada
-
-| Plataforma | Modo AR | Requisito |
-|---|---|---|
-| Android (Chrome) | **WebXR** | ARCore instalado |
-| Android (Samsung/etc) | **Scene Viewer** | Google Play Services |
-| iOS (Safari) | **Quick Look** | iOS 12+ / iPadOS |
-
-Para habilitar AR en iOS se necesitan archivos `.usdz`. Agrega la ruta en `src/main.js` → campo `iosSrc` de cada ave.
-
----
-
-## 🛠️ Tecnologías
-
-- [Vite 6](https://vitejs.dev/) — bundler ultrarrápido
-- [@google/model-viewer 4](https://modelviewer.dev/) — visor 3D + AR
-- Vanilla JS (ES modules) — sin framework, máximo rendimiento
-
----
-
-## 📜 Licencia
-
-MIT — Uso educativo y cultural.
-
+Despliegue compatible con **Vercel**, **Netlify** o **GitHub Pages**.

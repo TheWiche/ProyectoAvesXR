@@ -1,0 +1,247 @@
+{
+  "turpial": {
+    "file_path": "public/models/turpial.glb",
+    "nombre_comun": "Turpial de La Guajira",
+    "nombre_cientifico": "Icterus icterus",
+    "orden": "Passeriformes",
+    "familia": "Icteridae",
+    "tamaño": "22 - 24 cm",
+    "peso": "65 - 75 g",
+    "dieta": "Frugívoro y nectarívoro",
+    "habitat": "Matorral xerófilo de Alta Guajira",
+    "rasgo_clave": "Capucha negra y plumaje amarillo oro",
+    "callouts": [
+      {
+        "id": "nombre",
+        "title": "TURPIAL DE LA GUAJIRA",
+        "desc": "Icterus icterus · Ave cantora emblemática",
+        "target_rel": [0.0, -0.65, 0.96],
+        "badge_rel": [-1.0, -0.65, 1.12]
+      },
+      {
+        "id": "tamano_peso",
+        "title": "TAMAÑO Y PESO",
+        "desc": "Longitud 22 - 24 cm · Peso 65 - 75 g",
+        "target_rel": [0.0, -0.15, 0.90],
+        "badge_rel": [1.0, -0.65, 1.12]
+      },
+      {
+        "id": "pico_capucha",
+        "title": "PICO CÓNICO",
+        "desc": "Adaptado para néctar y frutos de cactus",
+        "target_rel": [0.0, -0.90, 0.88],
+        "badge_rel": [-1.05, -0.75, 0.70]
+      },
+      {
+        "id": "pecho_dorado",
+        "title": "PECHO DORADO",
+        "desc": "Pigmentos carotenoides brillantes",
+        "target_rel": [0.18, -0.45, 0.52],
+        "badge_rel": [1.05, -0.55, 0.50]
+      },
+      {
+        "id": "banda_alar",
+        "title": "BANDA ALAR",
+        "desc": "Franja blanca visible al desplegar alas",
+        "target_rel": [-0.45, 0.05, 0.58],
+        "badge_rel": [-1.0, 0.15, 0.35]
+      }
+    ]
+  },
+  "buco": {
+    "file_path": "public/models/buco.glb",
+    "nombre_comun": "Buco Gargantirrufo",
+    "nombre_cientifico": "Malacoptila rufa",
+    "orden": "Piciformes",
+    "familia": "Bucconidae",
+    "tamaño": "18 - 19 cm",
+    "peso": "40 - 50 g",
+    "dieta": "Insectívoro al acecho",
+    "habitat": "Bosques y serranías",
+    "rasgo_clave": "Pico ganchudo y garganta rufa",
+    "callouts": [
+      {
+        "id": "nombre",
+        "title": "BUCO GARGANTIRRUFO",
+        "desc": "Malacoptila rufa · Cazador al acecho",
+        "target_rel": [0.0, -0.60, 0.96],
+        "badge_rel": [-1.0, -0.65, 1.12]
+      },
+      {
+        "id": "tamano_peso",
+        "title": "TAMAÑO Y PESO",
+        "desc": "Longitud 18 - 19 cm · Peso 40 - 50 g",
+        "target_rel": [0.0, -0.10, 0.90],
+        "badge_rel": [1.0, -0.65, 1.12]
+      },
+      {
+        "id": "pico_vibrisas",
+        "title": "PICO GANCHUDO",
+        "desc": "Vibrisas para cazar insectos al vuelo",
+        "target_rel": [0.0, -0.88, 0.86],
+        "badge_rel": [-1.05, -0.75, 0.70]
+      },
+      {
+        "id": "garganta_rufa",
+        "title": "GARGANTA RUFA",
+        "desc": "Mancha canela rojiza diagnóstica",
+        "target_rel": [0.18, -0.42, 0.60],
+        "badge_rel": [1.05, -0.55, 0.50]
+      },
+      {
+        "id": "plumaje_mimetico",
+        "title": "PLUMAJE CRÍPTICO",
+        "desc": "Camuflaje perfecto entre ramas secas",
+        "target_rel": [-0.40, 0.10, 0.55],
+        "badge_rel": [-1.0, 0.15, 0.35]
+      }
+    ]
+  },
+  "flamenco": {
+    "file_path": "public/models/flamenco.glb",
+    "nombre_comun": "Flamenco Americano",
+    "nombre_cientifico": "Phoenicopterus ruber",
+    "orden": "Phoenicopteriformes",
+    "familia": "Phoenicopteridae",
+    "tamaño": "120 - 145 cm",
+    "peso": "2.2 - 2.8 kg",
+    "dieta": "Filtrador de microalgas y artemias",
+    "habitat": "Salinas de Manaure y lagunas",
+    "rasgo_clave": "Pico curvo y plumaje rosado",
+    "callouts": [
+      {
+        "id": "nombre",
+        "title": "FLAMENCO AMERICANO",
+        "desc": "Phoenicopterus ruber · Ave zancuda colonial",
+        "target_rel": [0.0, -0.60, 0.98],
+        "badge_rel": [-1.0, -0.65, 1.10]
+      },
+      {
+        "id": "tamano_peso",
+        "title": "TAMAÑO Y PESO",
+        "desc": "Altura 120 - 145 cm · Peso 2.2 - 2.8 kg",
+        "target_rel": [0.0, -0.15, 0.92],
+        "badge_rel": [1.0, -0.65, 1.10]
+      },
+      {
+        "id": "pico_filtrador",
+        "title": "PICO FILTRADOR",
+        "desc": "Lamelas para filtrar microalgas y artemias",
+        "target_rel": [0.0, -0.88, 0.88],
+        "badge_rel": [-1.05, -0.75, 0.80]
+      },
+      {
+        "id": "cuello_flexible",
+        "title": "CUELLO ELÁSTICO",
+        "desc": "19 vértebras para comer invertido",
+        "target_rel": [0.18, -0.45, 0.68],
+        "badge_rel": [1.05, -0.55, 0.60]
+      },
+      {
+        "id": "patas_zancudas",
+        "title": "PATAS ZANCUDAS",
+        "desc": "Zancas largas para vadear salinas de Manaure",
+        "target_rel": [-0.10, 0.0, 0.28],
+        "badge_rel": [-1.0, 0.05, 0.28]
+      }
+    ]
+  },
+  "paloma": {
+    "file_path": "public/models/paloma.glb",
+    "nombre_comun": "Palomita Escamosa",
+    "nombre_cientifico": "Columbina squammata",
+    "orden": "Columbiformes",
+    "familia": "Columbidae",
+    "tamaño": "18 - 22 cm",
+    "peso": "50 - 60 g",
+    "dieta": "Granívora",
+    "habitat": "Sabanas secas y matorrales",
+    "rasgo_clave": "Patrón de escamas en plumaje",
+    "callouts": [
+      {
+        "id": "nombre",
+        "title": "PALOMITA ESCAMOSA",
+        "desc": "Columbina squammata · Especie de zonas áridas",
+        "target_rel": [0.0, -0.60, 0.95],
+        "badge_rel": [-1.0, -0.65, 1.12]
+      },
+      {
+        "id": "tamano_peso",
+        "title": "TAMAÑO Y PESO",
+        "desc": "Longitud 18 - 22 cm · Peso 50 - 60 g",
+        "target_rel": [0.0, -0.15, 0.88],
+        "badge_rel": [1.0, -0.65, 1.12]
+      },
+      {
+        "id": "anillo_ocular",
+        "title": "ANILLO OCULAR",
+        "desc": "Piel periorbital azulada y pico fino",
+        "target_rel": [0.0, -0.85, 0.80],
+        "badge_rel": [-1.05, -0.75, 0.70]
+      },
+      {
+        "id": "dorso_escamoso",
+        "title": "DORSO ESCAMOSO",
+        "desc": "Plumas con ribetes negros como escamas",
+        "target_rel": [0.20, -0.20, 0.65],
+        "badge_rel": [1.05, -0.35, 0.55]
+      },
+      {
+        "id": "cola_escalonada",
+        "title": "COLA ESCALONADA",
+        "desc": "Puntas blancas al desplegar en vuelo",
+        "target_rel": [-0.20, 0.70, 0.18],
+        "badge_rel": [-1.0, 0.60, 0.30]
+      }
+    ]
+  },
+  "rey_guajiro": {
+    "file_path": "public/models/rey_guajiro.glb",
+    "nombre_comun": "Rey Guajiro (Tigana)",
+    "nombre_cientifico": "Eurypyga helias",
+    "orden": "Eurypygiformes",
+    "familia": "Eurypygidae",
+    "tamaño": "45 - 53 cm",
+    "peso": "180 - 220 g",
+    "dieta": "Insectos acuáticos y peces",
+    "habitat": "Ríos y humedales de Perijá",
+    "rasgo_clave": "Alas con ocelos solares",
+    "callouts": [
+      {
+        "id": "nombre",
+        "title": "REY GUAJIRO (TIGANA)",
+        "desc": "Eurypyga helias · Ave solitaria ribereña",
+        "target_rel": [0.0, -0.55, 0.95],
+        "badge_rel": [-1.0, -0.65, 1.12]
+      },
+      {
+        "id": "tamano_peso",
+        "title": "TAMAÑO Y PESO",
+        "desc": "Longitud 45 - 53 cm · Peso 180 - 220 g",
+        "target_rel": [0.0, -0.10, 0.88],
+        "badge_rel": [1.0, -0.65, 1.12]
+      },
+      {
+        "id": "pico_arpon",
+        "title": "PICO ARPONERO",
+        "desc": "Recto para presas acuáticas rápidas",
+        "target_rel": [0.0, -0.85, 0.80],
+        "badge_rel": [-1.05, -0.75, 0.70]
+      },
+      {
+        "id": "ocelos_solares",
+        "title": "OCELOS EN ALAS",
+        "desc": "Patrones solares para espantar rivales",
+        "target_rel": [0.22, 0.05, 0.55],
+        "badge_rel": [1.05, 0.05, 0.50]
+      },
+      {
+        "id": "porte_erguido",
+        "title": "PORTE ERGUIDO",
+        "desc": "Caminata sigilosa en humedales y ríos",
+        "target_rel": [-0.18, -0.25, 0.38],
+        "badge_rel": [-1.0, -0.15, 0.35]
+      }
+    ]
+  }
+}

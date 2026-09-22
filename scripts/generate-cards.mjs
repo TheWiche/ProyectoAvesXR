@@ -1,12 +1,15 @@
 import sharp from 'sharp';
 import fs from 'fs/promises';
+import QRCode from 'qrcode';
+
+const SITE_BASE_URL = process.env.SITE_URL || 'https://aves-xr-guajira.vercel.app';
 
 const BIRDS_CARDS = [
   {
     id: 'buco',
     index: 0,
     number: '01 / 05',
-    name: 'BUCO GARGANTRIRRUFO',
+    name: 'BUCO GARGANTIRRUFO',
     scientific: 'Malacoptila rufa',
     order: 'PICIFORMES',
     family: 'Bucconidae',
@@ -76,14 +79,27 @@ async function generateCards() {
   const CARD_HEIGHT = 1050;
 
   for (const bird of BIRDS_CARDS) {
-    console.log(`Generating card with transparent PNG for: ${bird.name}...`);
+    const birdTargetUrl = `${SITE_BASE_URL}/?bird=${bird.id}`;
+    console.log(`Generating card with QR code for: ${bird.name} (${birdTargetUrl})...`);
 
-    // Load transparent bird PNG and resize nicely
+    // 1. Generate QR Code Buffer
+    const QR_SIZE = 148;
+    const qrBuffer = await QRCode.toBuffer(birdTargetUrl, {
+      width: QR_SIZE,
+      margin: 1,
+      color: {
+        dark: '#081208',
+        light: '#ffffff'
+      },
+      errorCorrectionLevel: 'M'
+    });
+
+    // 2. Load transparent bird PNG and resize nicely
     const birdImgBuffer = await sharp(bird.imageFile)
       .resize(520, 500, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
       .toBuffer();
 
-    // Create perfectly measured, balanced SVG frame
+    // 3. SVG Frame with dedicated QR Code zone on bottom right
     const svgFrame = `
     <svg width="${CARD_WIDTH}" height="${CARD_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -105,7 +121,7 @@ async function generateCards() {
       <rect width="${CARD_WIDTH}" height="${CARD_HEIGHT}" fill="url(#bgGrad)"/>
       <rect width="${CARD_WIDTH}" height="${CARD_HEIGHT}" fill="url(#grid)"/>
 
-      <!-- Radial glow behind bird to make the transparent cutout pop -->
+      <!-- Radial glow behind bird -->
       <circle cx="400" cy="390" r="260" fill="url(#halo)"/>
 
       <!-- Tracking Target Outer Borders -->
@@ -134,72 +150,95 @@ async function generateCards() {
 
       <line x1="60" y1="92" x2="${CARD_WIDTH - 60}" y2="92" stroke="${bird.color}" stroke-opacity="0.35" stroke-width="2"/>
 
-      <!-- Center Frame for 3D Target Display -->
+      <!-- Center Frame for 3D Bird Display -->
       <rect x="64" y="112" width="${CARD_WIDTH - 128}" height="560" rx="16" fill="rgba(8,16,8,0.7)" stroke="${bird.color}" stroke-opacity="0.35" stroke-width="2"/>
 
-      <!-- Decorative subtle reticle circles in center -->
+      <!-- Reticle circles in center -->
       <circle cx="400" cy="392" r="170" fill="none" stroke="${bird.color}" stroke-opacity="0.14" stroke-width="1.5" stroke-dasharray="8,8"/>
       <circle cx="400" cy="392" r="80" fill="none" stroke="${bird.color}" stroke-opacity="0.2" stroke-width="1.5"/>
 
       <!-- Bottom Card Information Box -->
       <rect x="64" y="692" width="${CARD_WIDTH - 128}" height="295" rx="14" fill="#132413" stroke="${bird.color}" stroke-width="2"/>
 
-      <!-- Bird Name & Scientific Name -->
-      <text x="92" y="738" font-family="'Segoe UI', Arial, sans-serif" font-weight="900" font-size="27" fill="#ffffff" letter-spacing="0.5">${bird.name}</text>
-      <text x="92" y="770" font-family="Georgia, serif" font-style="italic" font-size="19" fill="${bird.color}">${bird.scientific}</text>
+      <!-- Left Column: Bird Info -->
+      <text x="92" y="738" font-family="'Segoe UI', Arial, sans-serif" font-weight="900" font-size="26" fill="#ffffff" letter-spacing="0.5">${bird.name}</text>
+      <text x="92" y="768" font-family="Georgia, serif" font-style="italic" font-size="18.5" fill="${bird.color}">${bird.scientific}</text>
 
-      <!-- Row 1: Taxonomy Badges (Orden, Familia) -->
-      <g transform="translate(92, 792)">
-        <!-- Badge 1: Orden -->
-        <rect x="0" y="0" width="200" height="34" rx="7" fill="#1c341c" stroke="#3d663d" stroke-width="1.5"/>
-        <text x="100" y="22" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="12" fill="#d2e4d2" text-anchor="middle">ORDEN: ${bird.order}</text>
+      <!-- Row 1: Taxonomy Badges -->
+      <g transform="translate(92, 790)">
+        <rect x="0" y="0" width="195" height="32" rx="6" fill="#1c341c" stroke="#3d663d" stroke-width="1.5"/>
+        <text x="97" y="21" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="11.5" fill="#d2e4d2" text-anchor="middle">ORDEN: ${bird.order}</text>
 
-        <!-- Badge 2: Familia -->
-        <rect x="214" y="0" width="200" height="34" rx="7" fill="#1c341c" stroke="#3d663d" stroke-width="1.5"/>
-        <text x="314" y="22" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="12" fill="#d2e4d2" text-anchor="middle">FAMILIA: ${bird.family}</text>
+        <rect x="208" y="0" width="195" height="32" rx="6" fill="#1c341c" stroke="#3d663d" stroke-width="1.5"/>
+        <text x="305" y="21" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="11.5" fill="#d2e4d2" text-anchor="middle">FAMILIA: ${bird.family}</text>
       </g>
 
-      <!-- Row 2: Region Badge (Full Width) -->
-      <g transform="translate(92, 838)">
-        <rect x="0" y="0" width="616" height="34" rx="7" fill="#1f321d" stroke="${bird.color}" stroke-opacity="0.45" stroke-width="1.5"/>
-        <text x="308" y="22" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="12.5" fill="${bird.color}" text-anchor="middle">📍 HÁBITAT: ${bird.region.toUpperCase()}</text>
+      <!-- Row 2: Region Badge -->
+      <g transform="translate(92, 834)">
+        <rect x="0" y="0" width="403" height="32" rx="6" fill="#1f321d" stroke="${bird.color}" stroke-opacity="0.45" stroke-width="1.5"/>
+        <text x="201" y="21" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="11.5" fill="${bird.color}" text-anchor="middle">📍 HÁBITAT: ${bird.region.toUpperCase()}</text>
       </g>
 
-      <!-- Row 3: AR Instructions Box (Fitted and Centered) -->
-      <g transform="translate(92, 888)">
-        <rect x="0" y="0" width="616" height="68" rx="8" fill="#0d180d" stroke="${bird.color}" stroke-opacity="0.35" stroke-width="1"/>
-        <text x="308" y="28" font-family="'Segoe UI', Arial, sans-serif" font-weight="800" font-size="12" fill="#d4a843" text-anchor="middle" letter-spacing="1">
-          ✦ REALIDAD AUMENTADA INTERACTIVA ✦
+      <!-- Row 3: Explanatory Call to Action -->
+      <g transform="translate(92, 880)">
+        <rect x="0" y="0" width="403" height="84" rx="8" fill="#0d180d" stroke="${bird.color}" stroke-opacity="0.35" stroke-width="1"/>
+        <text x="201" y="28" font-family="'Segoe UI', Arial, sans-serif" font-weight="800" font-size="11.5" fill="#d4a843" text-anchor="middle" letter-spacing="1">
+          ✦ ESCANEA EL CÓDIGO QR ✦
         </text>
-        <text x="308" y="49" font-family="'Segoe UI', Arial, sans-serif" font-weight="600" font-size="11.5" fill="#a4baa4" text-anchor="middle">
-          Enfoca esta tarjeta con la cámara del Escáner AR para proyectar el ave
+        <text x="201" y="50" font-family="'Segoe UI', Arial, sans-serif" font-weight="600" font-size="11" fill="#c0d4c0" text-anchor="middle">
+          Abre la cámara de tu celular para ver este
+        </text>
+        <text x="201" y="68" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="11" fill="${bird.color}" text-anchor="middle">
+          ave en 3D y Realidad Aumentada (AR)
+        </text>
+      </g>
+
+      <!-- Right Column: QR Code Box Frame -->
+      <g transform="translate(528, 712)">
+        <!-- Outer Box -->
+        <rect x="0" y="0" width="180" height="252" rx="10" fill="#0b160b" stroke="${bird.color}" stroke-width="2"/>
+        
+        <!-- QR Title Header -->
+        <text x="90" y="24" font-family="'Segoe UI', Arial, sans-serif" font-weight="800" font-size="11" fill="${bird.color}" text-anchor="middle" letter-spacing="1.5">
+          ESCANEAR AR
+        </text>
+        
+        <!-- White backing plate for optimal QR reading -->
+        <rect x="12" y="34" width="156" height="156" rx="6" fill="#ffffff"/>
+        
+        <!-- Subtitle below QR -->
+        <text x="90" y="212" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="10.5" fill="#ffffff" text-anchor="middle">
+          VER EN TU ESPACIO
+        </text>
+        <text x="90" y="230" font-family="'Segoe UI', Arial, sans-serif" font-weight="600" font-size="9.5" fill="#9aaa8a" text-anchor="middle">
+          WebXR · 3D Anotado
         </text>
       </g>
     </svg>
     `;
 
-    // Composite transparent bird over frame
+    // Composite transparent bird AND QR code over frame
+    // QR position: x = 528 + 16 = 544, y = 712 + 38 = 750
     await sharp(Buffer.from(svgFrame))
       .composite([
         {
           input: birdImgBuffer,
           top: 142,
           left: Math.round((CARD_WIDTH - 520) / 2)
+        },
+        {
+          input: qrBuffer,
+          top: 750,
+          left: 544
         }
       ])
       .png()
       .toFile(`public/targets/card-${bird.id}.png`);
 
-    // Also generate resized compiler image (480x630) for MindAR tracking compiler
-    await sharp(`public/targets/card-${bird.id}.png`)
-      .resize(480, 630)
-      .png({ quality: 90 })
-      .toFile(`public/targets/compiler-${bird.id}.png`);
-
-    console.log(`✓ Card & compiler target created: card-${bird.id}.png`);
+    console.log(`✓ Card with QR code created: public/targets/card-${bird.id}.png`);
   }
 
-  console.log('✅ All 5 cards generated with transparent PNG birds and fitted typography!');
+  console.log('✅ All 5 cards generated successfully with embedded QR codes!');
 }
 
 generateCards().catch(console.error);

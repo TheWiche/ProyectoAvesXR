@@ -10,7 +10,8 @@
     "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
-    "@google/model-viewer": "^4.0.0"
+    "@google/model-viewer": "^4.0.0",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@gltf-transform/cli": "^4.5.0",
