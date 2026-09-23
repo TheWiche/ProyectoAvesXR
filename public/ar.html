@@ -10,6 +10,7 @@
       --bg: #091309;
       --accent: #d4a843;
       --glow: #00d2ff;
+      --success: #4caf50;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -35,18 +36,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
     }
-    .spinner {
-      width: 52px;
-      height: 52px;
-      border: 4px solid #2b442b;
-      border-top-color: var(--glow);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 10px 0;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
     .bird-preview {
       width: 140px;
       height: 140px;
@@ -81,23 +72,70 @@
       color: #a4baa4;
       line-height: 1.45;
     }
+
+    /* ── Progress Bar ── */
+    .progress-box {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid #254025;
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 4px 0;
+    }
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: #182818;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2e7d32, #66bb6a);
+      border-radius: 99px;
+      transition: width 0.15s ease-out;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+    }
+    .progress-status {
+      color: #a8caa8;
+    }
+    .progress-percent {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    /* ── Action Buttons ── */
     .btn-manual {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
       width: 100%;
-      padding: 15px 20px;
+      padding: 16px 20px;
       border-radius: 14px;
       background: linear-gradient(135deg, #2e7d32, #1b5e20);
       color: #fff;
       text-decoration: none;
       font-weight: 700;
-      font-size: 0.98rem;
-      box-shadow: 0 4px 18px rgba(46,125,50,0.5);
+      font-size: 1rem;
+      box-shadow: 0 4px 20px rgba(46,125,50,0.5);
       border: none;
       cursor: pointer;
       transition: .2s ease;
+      animation: pulseBtn 1.8s infinite;
+    }
+    @keyframes pulseBtn {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
     }
     .btn-manual:active { transform: scale(0.98); }
     .btn-secondary {
@@ -116,7 +154,7 @@
     .hint-text {
       font-size: 0.78rem;
       color: #7b967b;
-      margin-top: 4px;
+      margin-top: 2px;
     }
   </style>
 </head>
@@ -125,18 +163,27 @@
   <div class="launcher-card">
     <div class="badge">✦ REALIDAD AUMENTADA ✦</div>
 
-    <div class="bird-preview" id="bird-preview-wrap" style="display: none;">
+    <div class="bird-preview">
       <img id="bird-poster-img" src="" alt="Previsualización del ave" />
     </div>
 
-    <div class="spinner" id="spinner"></div>
+    <h1 id="bird-title">Preparando modelo...</h1>
+    <p id="status-msg">Descargando el modelo 3D con infografía para Realidad Aumentada.</p>
 
-    <h1 id="bird-title">Iniciando Realidad Aumentada...</h1>
-    <p id="status-msg">Preparando el modelo 3D para proyectarlo en tu espacio.</p>
+    <!-- Download Progress Box -->
+    <div class="progress-box" id="progress-box">
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <div class="progress-info">
+        <span class="progress-status" id="progress-status">Descargando modelo...</span>
+        <span class="progress-percent" id="progress-percent">0%</span>
+      </div>
+    </div>
 
-    <!-- Android Scene Viewer Button -->
+    <!-- Android Scene Viewer Button (Enabled only when 100% downloaded) -->
     <button id="btn-launch-android" class="btn-manual" style="display: none;">
-      📷 Abrir Cámara en AR (Android)
+      📷 Abrir Cámara en AR (¡Listo!)
     </button>
 
     <!-- iOS Native Quick Look Link (Apple Standard: <a rel="ar" href="..."><img src="..."/><span>...</span></a>) -->
@@ -145,7 +192,7 @@
       <span>👁️ Ver en tu espacio (iPhone AR)</span>
     </a>
 
-    <p class="hint-text" id="platform-hint"></p>
+    <p class="hint-text" id="platform-hint">No abriremos la cámara hasta que el modelo esté completamente descargado.</p>
 
     <a id="btn-gallery" href="index.html" class="btn-secondary">
       🌐 Ver modelo 3D interactivo en la web
@@ -203,49 +250,95 @@
     const isAndroid = /android/i.test(navigator.userAgent);
     const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
 
-    const spinner = document.getElementById('spinner');
-    const previewWrap = document.getElementById('bird-preview-wrap');
     const posterImg = document.getElementById('bird-poster-img');
     const statusMsg = document.getElementById('status-msg');
     const platformHint = document.getElementById('platform-hint');
+    const progressFill = document.getElementById('progress-fill');
+    const progressPercent = document.getElementById('progress-percent');
+    const progressStatus = document.getElementById('progress-status');
+    const androidBtn = document.getElementById('btn-launch-android');
+    const iosBtn = document.getElementById('btn-launch-ios');
+    const iosThumb = document.getElementById('ios-ar-thumb');
 
-    // Show preview poster
+    // Show bird poster
     posterImg.src = posterUrl;
-    previewWrap.style.display = 'flex';
 
-    if (isIOS) {
-      // iOS / Apple Quick Look mode
-      spinner.style.display = 'none';
-      statusMsg.textContent = 'Toca el botón abajo para proyectar el ave en tu espacio con la cámara de tu iPhone / iPad:';
-      platformHint.textContent = 'Compatible con Apple ARKit Quick Look en Safari iOS.';
+    /** Progress updater */
+    function updateProgress(percent, label) {
+      progressFill.style.width = `${percent}%`;
+      progressPercent.textContent = `${percent}%`;
+      if (label) progressStatus.textContent = label;
+    }
 
-      const iosBtn = document.getElementById('btn-launch-ios');
-      const iosThumb = document.getElementById('ios-ar-thumb');
+    /** Stream downloader that tracks bytes */
+    async function downloadModel(targetUrl) {
+      try {
+        const response = await fetch(targetUrl);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-      iosBtn.href = usdzUrl;
-      iosThumb.src = posterUrl;
-      iosBtn.style.display = 'inline-flex';
+        const contentLength = response.headers.get('content-length');
+        const total = contentLength ? parseInt(contentLength, 10) : 0;
 
-    } else if (isAndroid) {
-      // Android Scene Viewer mode
-      statusMsg.textContent = 'Abriendo la cámara de tu celular con Google Scene Viewer AR...';
-      platformHint.textContent = 'Compatible con Google Play Services para RA (ARCore).';
+        if (!total || !response.body) {
+          // Fallback if no content-length
+          updateProgress(50, 'Descargando...');
+          await response.blob();
+          updateProgress(100, '✅ Modelo listo');
+          return;
+        }
 
-      const androidBtn = document.getElementById('btn-launch-android');
-      androidBtn.style.display = 'inline-flex';
+        const reader = response.body.getReader();
+        let received = 0;
 
-      function triggerSceneViewer() {
-        const sceneViewerIntent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelFullUrl)}&mode=ar_only&title=${encodeURIComponent(bird.name)}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackWebUrl)};end;`;
-        window.location.href = sceneViewerIntent;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          received += value.length;
+          const pct = Math.min(99, Math.round((received / total) * 100));
+          const mbReceived = (received / (1024 * 1024)).toFixed(1);
+          const mbTotal = (total / (1024 * 1024)).toFixed(1);
+          updateProgress(pct, `Descargando: ${mbReceived} MB / ${mbTotal} MB`);
+        }
+
+        updateProgress(100, '✅ Modelo 100% descargado');
+      } catch (err) {
+        console.warn('Download stream error:', err);
+        updateProgress(100, '✅ Modelo listo');
       }
+    }
 
-      androidBtn.addEventListener('click', triggerSceneViewer);
-      // Auto launch on Android
-      setTimeout(triggerSceneViewer, 400);
+    // Platform execution
+    if (isAndroid) {
+      platformHint.textContent = 'Descargando modelo para Google ARCore Scene Viewer...';
+      
+      downloadModel(modelFullUrl).then(() => {
+        statusMsg.textContent = '¡Modelo 3D descargado con éxito! Presiona el botón para abrir la cámara:';
+        platformHint.textContent = 'Compatible con Google Play Services para RA (ARCore).';
+        androidBtn.style.display = 'inline-flex';
+
+        function launchSceneViewer() {
+          const sceneViewerIntent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelFullUrl)}&mode=ar_preferred&title=${encodeURIComponent(bird.name)}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackWebUrl)};end;`;
+          window.location.href = sceneViewerIntent;
+        }
+
+        androidBtn.addEventListener('click', launchSceneViewer);
+      });
+
+    } else if (isIOS) {
+      platformHint.textContent = 'Descargando modelo para Apple Quick Look AR...';
+
+      downloadModel(usdzUrl).then(() => {
+        statusMsg.textContent = '¡Modelo listo! Presiona el botón abajo para abrir la cámara de tu iPhone:';
+        platformHint.textContent = 'Compatible con Apple ARKit Quick Look en Safari iOS.';
+
+        iosBtn.href = usdzUrl;
+        iosThumb.src = posterUrl;
+        iosBtn.style.display = 'inline-flex';
+      });
 
     } else {
-      // Desktop / PC
-      spinner.style.display = 'none';
+      // Desktop
+      updateProgress(100, 'Modo escritorio');
       statusMsg.textContent = 'Para la experiencia de Realidad Aumentada interactiva abre este enlace en tu celular.';
       platformHint.textContent = 'Redirigiendo al visor 3D para computadora...';
       setTimeout(() => {

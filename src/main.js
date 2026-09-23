@@ -313,30 +313,90 @@ if (modalCopyBtn) {
   })
 }
 
-/** Launch AR Experience (Direct Camera on Mobile, Modal on Desktop) */
-function launchAR () {
+const downloadedCache = new Set()
+
+/** Stream downloader to cache and track model download */
+async function downloadModelWithProgress (url, onProgress) {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  const contentLength = response.headers.get('content-length')
+  const total = contentLength ? parseInt(contentLength, 10) : 0
+
+  if (!total || !response.body) {
+    await response.blob()
+    onProgress(100, 1, 1)
+    return
+  }
+
+  const reader = response.body.getReader()
+  let received = 0
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    received += value.length
+    const pct = Math.min(99, Math.round((received / total) * 100))
+    onProgress(pct, received, total)
+  }
+  onProgress(100, total, total)
+}
+
+/** Launch AR Experience (Pre-downloads model first, then sends to camera) */
+async function launchAR () {
   const bird = BIRDS[currentIndex]
   if (!bird) return
 
   const isAndroid = /android/i.test(navigator.userAgent)
   const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream
 
+  if (!isAndroid && !isIOS) {
+    // Desktop: Show QR Code Modal for mobile scan
+    openARModal(bird)
+    return
+  }
+
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   const siteUrl = isLocal ? 'https://aves-guajira-xr.vercel.app' : window.location.origin
 
   const modelFullUrl = `${siteUrl}/${bird.annotatedModel}`
+  const usdzUrl = `${siteUrl}/${bird.iosSrc}`
   const fallbackWebUrl = `${siteUrl}/?bird=${bird.id}`
 
-  console.info(`[AR] Launching AR for ${bird.commonName} (Android: ${isAndroid}, iOS: ${isIOS})`)
+  const cacheKey = isIOS ? bird.iosSrc : bird.annotatedModel
+  const targetUrl = isIOS ? usdzUrl : modelFullUrl
+
+  // Check if model is already downloaded
+  if (!downloadedCache.has(cacheKey)) {
+    console.info(`[AR] Pre-downloading model before camera launch: ${targetUrl}`)
+    showLoading()
+    const loadingText = loadingOverlay.querySelector('.loading-text')
+    if (loadingText) loadingText.textContent = 'Descargando modelo para Realidad Aumentada (0%)...'
+
+    try {
+      await downloadModelWithProgress(targetUrl, (pct, received, total) => {
+        if (loadingText) {
+          const mbRec = (received / (1024 * 1024)).toFixed(1)
+          const mbTot = (total / (1024 * 1024)).toFixed(1)
+          loadingText.textContent = `Descargando modelo AR: ${pct}% (${mbRec} / ${mbTot} MB)`
+        }
+      })
+      downloadedCache.add(cacheKey)
+      if (loadingText) loadingText.textContent = '✅ ¡Modelo descargado! Abriendo cámara...'
+      await new Promise(resolve => setTimeout(resolve, 350))
+    } catch (err) {
+      console.warn('Pre-download error, proceeding with direct launch:', err)
+    } finally {
+      hideLoading()
+    }
+  }
+
+  console.info(`[AR] Launching camera for ${bird.commonName} (Android: ${isAndroid}, iOS: ${isIOS})`)
 
   if (isAndroid) {
-    // Direct launch into Google ARCore Scene Viewer camera mode:
-    // mode=ar_only opens the camera feed directly!
-    const sceneViewerIntent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelFullUrl)}&mode=ar_only&title=${encodeURIComponent(bird.commonName)}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackWebUrl)};end;`
+    // Launch Google ARCore Scene Viewer camera mode:
+    const sceneViewerIntent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelFullUrl)}&mode=ar_preferred&title=${encodeURIComponent(bird.commonName)}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackWebUrl)};end;`
     window.location.href = sceneViewerIntent
   } else if (isIOS) {
     // iOS Safari Quick Look:
-    // 1. Try model-viewer's native activateAR()
     if (viewer && typeof viewer.activateAR === 'function') {
       try {
         viewer.activateAR()
@@ -346,8 +406,7 @@ function launchAR () {
       }
     }
 
-    // 2. Direct Apple Quick Look anchor (must include valid img child)
-    const usdzUrl = `${siteUrl}/${bird.iosSrc}`
+    // Direct Apple Quick Look anchor
     const a = document.createElement('a')
     a.setAttribute('rel', 'ar')
     a.setAttribute('href', usdzUrl)
@@ -357,9 +416,6 @@ function launchAR () {
     document.body.appendChild(a)
     a.click()
     setTimeout(() => a.remove(), 1000)
-  } else {
-    // Desktop: Show QR Code Modal for mobile scan
-    openARModal(bird)
   }
 }
 
