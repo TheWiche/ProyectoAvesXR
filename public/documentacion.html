@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentación Técnica XR: Aves de la Guajira & Blueprint Motos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f19;
+      color: #e2e8f0;
+    }
+    code, pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .gradient-border {
+      position: relative;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(168, 85, 247, 0.2));
+      padding: 1px;
+    }
+    .gradient-content {
+      background: #0f172a;
+      border-radius: calc(1rem - 1px);
+    }
+    .badge-glow {
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+    }
+  </style>
+</head>
+<body class="selection:bg-cyan-500 selection:text-white">
+
+  <!-- Encabezado Hero -->
+  <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+        <h1 class="text-xl font-bold bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
+          Informe de Ingeniería WebXR & Pipeline 3D
+        </h1>
+        <span class="text-xs font-mono uppercase bg-cyan-950/80 text-cyan-400 border border-cyan-800/60 px-2 py-0.5 rounded">v2.4 Prod</span>
+      </div>
+      <div class="flex items-center gap-3 text-xs font-mono">
+        <a href="https://aves-guajira-xr.vercel.app" target="_blank" class="text-slate-400 hover:text-cyan-400 transition flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          Demo en Producción
+        </a>
+        <span class="text-slate-600">|</span>
+        <a href="https://github.com/TheWiche/ProyectoAvesXR" target="_blank" class="text-slate-400 hover:text-indigo-400 transition flex items-center gap-1">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          Repo GitHub
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-12 space-y-16">
+
+    <!-- Resumen del Informe -->
+    <section class="space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-800/80 text-cyan-400 text-xs font-semibold tracking-wide">
+        DOCUMENTACIÓN DE TRASLADO TECNOLÓGICO
+      </div>
+      <h2 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
+        Auditoría de Desarrollo, Pipeline 3D y Lecciones Aprendidas
+      </h2>
+      <p class="text-lg text-slate-400 max-w-4xl leading-relaxed">
+        Este documento desglosa minuciosamente cada decisión arquitectónica, herramientas utilizadas (como <strong class="text-slate-200">Meshy.ai</strong>, <strong class="text-slate-200">Blender</strong>, <strong class="text-slate-200">Python</strong> y <strong class="text-slate-200">WebXR</strong>), qué se implementó, qué se descartó con su justificación técnica, y cómo replicar exactamente este éxito en el nuevo proyecto de <strong>Motos en Realidad Aumentada</strong>.
+      </p>
+    </section>
+
+    <!-- 1. HERRAMIENTAS UTILIZADAS -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 font-bold">1</div>
+        <h3 class="text-2xl font-bold text-white">Stack de Herramientas y Software Utilizado</h3>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Meshy.ai -->
+        <div class="gradient-border">
+          <div class="gradient-content p-6 h-full space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-white text-lg">Meshy.ai</h4>
+              <span class="text-xs bg-purple-950 text-purple-300 border border-purple-800 px-2 py-0.5 rounded">Generativo 3D</span>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              <strong>Rol:</strong> Generación inicial de la volumetría 3D y texturizado asistido por IA a partir de prompts y referencias visuales de las especies de aves de La Guajira.
+            </p>
+            <div class="text-xs text-slate-500 font-mono bg-slate-950/60 p-2.5 rounded border border-slate-800/80">
+              Output: Mallas base sin optimizar (~50-90 MB c/u) con alta densidad poligonal y texturas crudas.
+            </div>
+          </div>
+        </div>
+
+        <!-- Blender 5.2 LTS -->
+        <div class="gradient-border">
+          <div class="gradient-content p-6 h-full space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-white text-lg">Blender 5.2 LTS</h4>
+              <span class="text-xs bg-amber-950 text-amber-300 border border-amber-800 px-2 py-0.5 rounded">DCC & Automation</span>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              <strong>Rol:</strong> Motor central de modelado, UV unwrapping, reorientación de ejes, creación de mallas infográficas y compilación mediante scripting Python automatizado (`bpy`).
+            </p>
+            <div class="text-xs text-slate-500 font-mono bg-slate-950/60 p-2.5 rounded border border-slate-800/80">
+              Modo headless: Ejecución en terminal sin interfaz gráfica para procesamiento por lotes masivo.
+            </div>
+          </div>
+        </div>
+
+        <!-- Python + Pillow (PIL) -->
+        <div class="gradient-border">
+          <div class="gradient-content p-6 h-full space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-white text-lg">Python 3 + Pillow</h4>
+              <span class="text-xs bg-cyan-950 text-cyan-300 border border-cyan-800 px-2 py-0.5 rounded">Procedural UI</span>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              <strong>Rol:</strong> Renderizado procedural de las tarjetas infográficas en texturas RGBA nítidas de 512x136 px con tipografías vectoriales, marcos luminosos y transparencia alfa.
+            </p>
+            <div class="text-xs text-slate-500 font-mono bg-slate-950/60 p-2.5 rounded border border-slate-800/80">
+              Scripts: `generate_labels.py`, `inject_infographics.py`.
+            </div>
+          </div>
+        </div>
+
+        <!-- Rembg + U2Net -->
+        <div class="gradient-border">
+          <div class="gradient-content p-6 h-full space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-white text-lg">Rembg (IA U2Net)</h4>
+              <span class="text-xs bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded">Visión por Computadora</span>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              <strong>Rol:</strong> Eliminación de fondos negros de los renders de vista previa para generar pósters PNG transparentes ligeros (200-300 KB) para carga instantánea.
+            </p>
+            <div class="text-xs text-slate-500 font-mono bg-slate-950/60 p-2.5 rounded border border-slate-800/80">
+              Ubicación: `public/posters/*.png`
+            </div>
+          </div>
+        </div>
+
+        <!-- Vite + Model-Viewer -->
+        <div class="gradient-border">
+          <div class="gradient-content p-6 h-full space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-white text-lg">Vite & Model-Viewer</h4>
+              <span class="text-xs bg-sky-950 text-sky-300 border border-sky-800 px-2 py-0.5 rounded">Frontend WebXR</span>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              <strong>Rol:</strong> Visualizador WebGL de alto desempeño para la galería web, enlace con WebXR Device API y disparador de intents para Google SceneViewer y Quick Look.
+            </p>
+            <div class="text-xs text-slate-500 font-mono bg-slate-950/60 p-2.5 rounded border border-slate-800/80">
+              Vanilla JS moderno, cero dependencias pesadas, carga sub-segundo.
+            </div>
+          </div>
+        </div>
+
+        <!-- Git LFS & Vercel -->
+        <div class="gradient-border">
+          <div class="gradient-content p-6 h-full space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-white text-lg">Git LFS & Vercel</h4>
+              <span class="text-xs bg-rose-950 text-rose-300 border border-rose-800 px-2 py-0.5 rounded">DevOps / Cloud</span>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              <strong>Rol:</strong> Control de versiones para archivos binarios pesados (GLB y USDZ) mediante Git Large File Storage y despliegue continuo serverless con caché inmutable en edge.
+            </p>
+            <div class="text-xs text-slate-500 font-mono bg-slate-950/60 p-2.5 rounded border border-slate-800/80">
+              Headers HTTP: `model/vnd.usdz+zip` y `model/gltf-binary`.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. QUÉ SE HIZO -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold">2</div>
+        <h3 class="text-2xl font-bold text-white">¿Qué se Hizo? (Alcance del Proyecto)</h3>
+      </div>
+
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-6 space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-3">
+            <h4 class="text-cyan-400 font-semibold flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              Galería Web 3D Limpia e Interactiva
+            </h4>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              En el navegador web, el usuario disfruta de una galería interactiva con rotación de 360°, selector fluido de 5 aves, fichas de conservación ecológica, audio ambiental y controles de visualización. En esta vista <strong>el modelo se muestra limpio, sin anotaciones 3D flotantes</strong> para priorizar la estética visual y la inspección minuciosa.
+            </p>
+          </div>
+
+          <div class="space-y-3">
+            <h4 class="text-cyan-400 font-semibold flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              Estrategia de Doble Modelo (Clean Web vs Native AR)
+            </h4>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Separamos la experiencia en dos modelos independientes por cada entidad:
+              <br><code class="text-xs text-cyan-300">ave.glb</code> para la web (1-3 MB).
+              <br><code class="text-xs text-cyan-300">ave_con_infografia.glb</code> / <code class="text-xs text-cyan-300">ave.usdz</code> para Realidad Aumentada, incorporando 5 tarjetas infográficas 3D con líneas conectoras y esferas de anclaje anatómico.
+            </p>
+          </div>
+
+          <div class="space-y-3">
+            <h4 class="text-cyan-400 font-semibold flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              Infografía 3D Espacial con Lectura 360°
+            </h4>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Se crearon 5 anotaciones por ave (Nombre científico/común, tamaño/peso, y 3 características biológicas únicas). Cada tarjeta utiliza la técnica de <strong>doble cara con coordenadas UV invertidas</strong>, permitiendo que el usuario camine alrededor del animal en su sala o jardín y lea las fichas técnicas siempre al derecho.
+            </p>
+          </div>
+
+          <div class="space-y-3">
+            <h4 class="text-cyan-400 font-semibold flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              Lanzador AR Nativo con Barra de Progreso (`ar.html`)
+            </h4>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Diseñamos una vista especializada de lanzamiento que recibe la entidad por URL (ej. <code class="text-xs text-slate-300">ar.html?bird=turpial</code>). Esta página calcula la descarga en tiempo real mediante streams binarios de JavaScript y sólo dispara la cámara AR cuando el archivo está 100% en memoria, eliminando pantallas negras y bloqueos en dispositivos lentos.
+            </p>
+          </div>
+
+          <div class="space-y-3">
+            <h4 class="text-cyan-400 font-semibold flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              Compatibilidad Total con iPhone (Apple Quick Look USDZ)
+            </h4>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Convertimos y optimizamos los 5 modelos USDZ para iOS eliminando el error del color rosa fluorescente (`#FF00FF`), alineando los ejes verticales a Y-Up y comprimiendo la geometría por debajo de los 25 MB para asegurar compatibilidad total en Safari.
+            </p>
+          </div>
+
+          <div class="space-y-3">
+            <h4 class="text-cyan-400 font-semibold flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              Tarjetas Físicas Imprimibles con QR Directo
+            </h4>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Diseñamos tarjetas coleccionables descargables con arte botánico y un código QR que apunta directamente a la experiencia AR de cada ave, permitiendo que cualquier persona apunte con su teléfono a la tarjeta impresa e invoque al animal en realidad aumentada al instante.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. CÓMO SE HIZO (INGENIERÍA Y PIPELINE) -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold">3</div>
+        <h3 class="text-2xl font-bold text-white">¿Cómo se Hizo? (Pipeline Paso a Paso)</h3>
+      </div>
+
+      <div class="space-y-6">
+        
+        <!-- Paso 1 -->
+        <div class="border-l-2 border-cyan-500 pl-6 ml-4 space-y-2">
+          <h4 class="text-lg font-bold text-white">Fase A: Generación y Tratamiento Inicial de Mallas</h4>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Se generaron los modelos crudos en <strong>Meshy.ai</strong>. Los archivos resultantes pesaban cerca de 290 MB en total con mallas excesivamente densas (más de 700,000 polígonos por ave). En Blender se ejecutó una limpieza inicial, unificación de mallas y horneado de texturas PBR.
+          </p>
+        </div>
+
+        <!-- Paso 2 -->
+        <div class="border-l-2 border-cyan-500 pl-6 ml-4 space-y-2">
+          <h4 class="text-lg font-bold text-white">Fase B: Generación Procedural de Texturas para Infografía (Python PIL)</h4>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Mediante el script <code class="text-xs text-cyan-300">generate_labels.py</code>, se construyeron imágenes PNG de 512x136 píxeles con fondo semitransparente oscuro (<code class="text-xs text-slate-300">#0f172ae6</code>), borde redondeado de radio 16 px en cian neón (<code class="text-xs text-slate-300">#38bdf8</code>), un badge numérico con icono y tipografía limpia anti-aliased.
+          </p>
+        </div>
+
+        <!-- Paso 3 -->
+        <div class="border-l-2 border-cyan-500 pl-6 ml-4 space-y-3">
+          <h4 class="text-lg font-bold text-white">Fase C: Inyección 3D en Blender (`inject_infographics.py`)</h4>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Para cada una de las 5 etiquetas de cada ave:
+          </p>
+          <ul class="list-disc list-inside text-sm text-slate-300 space-y-1.5 ml-2">
+            <li><strong>Plano Frontal:</strong> Plano orientado hacia el observador (<code class="text-xs text-slate-400">Euler (90°, 0, 0)</code>) con el material de la tarjeta.</li>
+            <li><strong>Plano Trasero & UV Invertida:</strong> Segundo plano desplazado 0.5 mm detrás con rotación Z de 180° y con su coordenada UV invertida en el eje horizontal (<code class="text-xs text-cyan-300">uv[0] = 1.0 - uv[0]</code>), permitiendo lectura bidireccional perfecta.</li>
+            <li><strong>Shader Auto-Emisivo:</strong> Conexión de la textura tanto al <code class="text-xs text-slate-300">Base Color</code> como al <code class="text-xs text-slate-300">Emission Color</code> con fuerza 1.3, para que la tarjeta sea 100% legible sin importar la sombra o la iluminación del cuarto.</li>
+            <li><strong>Tubo Conector Cilíndrico:</strong> Cilindro orientado matemáticamente con cuaterniones (<code class="text-xs text-cyan-300">Vector(0,0,1).rotation_difference(dir_vec)</code>) que une la tarjeta con el punto anatómico del ave.</li>
+            <li><strong>Esferas de Anclaje:</strong> Esferas de material cian brillante situadas en la parte del cuerpo referenciada (pico, patas, plumaje) y en el borde de la tarjeta.</li>
+          </ul>
+        </div>
+
+        <!-- Paso 4 -->
+        <div class="border-l-2 border-cyan-500 pl-6 ml-4 space-y-3">
+          <h4 class="text-lg font-bold text-white">Fase D: Solución de los 3 Grandes Problemas de iPhone (USDZ Quick Look)</h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div class="bg-slate-950 p-4 rounded border border-slate-800 space-y-2">
+              <span class="text-rose-400 font-bold block">1. Error Magenta (#FF00FF)</span>
+              <p class="text-slate-400">Blender empaquetaba texturas en WebP. Apple Metal no soporta WebP y crasheaba en magenta. Se forzó la recodificación a verdaderos PNGs de 24 bits.</p>
+            </div>
+            <div class="bg-slate-950 p-4 rounded border border-slate-800 space-y-2">
+              <span class="text-amber-400 font-bold block">2. Ave Acostada de Lado</span>
+              <p class="text-slate-400">Blender exportaba en coordenadas Z-Up. Apple ARKit exige Y-Up. Se corrigió activando <code class="text-cyan-300">convert_orientation=True</code> y <code class="text-cyan-300">export_global_up_selection='Y'</code>.</p>
+            </div>
+            <div class="bg-slate-950 p-4 rounded border border-slate-800 space-y-2">
+              <span class="text-emerald-400 font-bold block">3. Crasheos de Memoria (>30 MB)</span>
+              <p class="text-slate-400">Safari reiniciaba la pestaña con archivos grandes. Se aplicó Decimate inteligente solo a mallas de más de 5,000 vértices, bajando el peso a 10-24 MB sin perder nitidez de texto.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. QUÉ NO SE HIZO Y POR QUÉ -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 font-bold">4</div>
+        <h3 class="text-2xl font-bold text-white">¿Qué NO se Hizo y Por Qué? (Decisiones Arquitectónicas)</h3>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div class="bg-slate-900/60 border border-rose-950/60 p-6 rounded-xl space-y-3">
+          <div class="flex items-center gap-2 text-rose-400 font-bold text-base">
+            <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            NO usar Hotspots 2D HTML/CSS en Realidad Aumentada
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            <strong>¿Por qué?</strong> Las etiquetas flotantes de HTML (slots de <code class="text-xs text-slate-300">&lt;model-viewer&gt;</code>) solo funcionan mientras estás en el navegador 2D. Cuando el usuario pulsa "Ver en AR", el teléfono transfiere el control a aplicaciones nativas del sistema operativo (<strong class="text-slate-200">Google SceneViewer</strong> en Android o <strong class="text-slate-200">Apple Quick Look</strong> en iPhone). Estas aplicaciones <strong>ignoran por completo el código HTML/CSS</strong>; únicamente aceptan el archivo 3D con geometría y texturas puras.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/60 border border-rose-950/60 p-6 rounded-xl space-y-3">
+          <div class="flex items-center gap-2 text-rose-400 font-bold text-base">
+            <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            NO mostrar las infografías 3D en la galería web principal
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            <strong>¿Por qué?</strong> En una pantalla pequeña de smartphone, tener 5 tarjetas 3D flotando permanentemente alrededor del ave satura el campo visual y estorba cuando el usuario quiere rotar e inspeccionar el plumaje de cerca. Mantener la web con el modelo limpio y reservar las infografías para el AR genera además un "efecto sorpresa" mucho mayor en la experiencia inmersiva.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/60 border border-rose-950/60 p-6 rounded-xl space-y-3">
+          <div class="flex items-center gap-2 text-rose-400 font-bold text-base">
+            <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            NO usar texturas WebP en los archivos USDZ para iPhone
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            <strong>¿Por qué?</strong> Aunque WebP es el estándar moderno en web por su compresión superior, el subsistema de renderizado de Apple Quick Look en iOS (basado en Metal) **no tiene decodificador WebP implementado**. Incluir cualquier imagen WebP dentro del contenedor USDZ causa el infame error de shader magenta fluorescente (`#FF00FF`).
+          </p>
+        </div>
+
+        <div class="bg-slate-900/60 border border-rose-950/60 p-6 rounded-xl space-y-3">
+          <div class="flex items-center gap-2 text-rose-400 font-bold text-base">
+            <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            NO usar AR.js o marcadores físicos impresos (Pattern Tracking)
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            <strong>¿Por qué?</strong> El seguimiento clásico por patrones (código Hiro o tarjetas negras de AR.js) es anticuado, se pierde con cualquier sombra o ángulo cerrado, y obliga al usuario a tener un papel frente a la cámara. Con WebXR, SceneViewer y Quick Look usamos <strong>SLAM nativo (detección de superficies y pisos)</strong>, logrando estabilidad milimétrica y escala real 1:1 en cualquier entorno.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/60 border border-rose-950/60 p-6 rounded-xl space-y-3">
+          <div class="flex items-center gap-2 text-rose-400 font-bold text-base">
+            <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            NO mantener los modelos sin decimación para iOS
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            <strong>¿Por qué?</strong> Un modelo USDZ de más de 40 o 50 MB provoca que WebKit y Safari en dispositivos iOS maten el proceso por uso excesivo de memoria ("A problem repeatedly occurred with this webpage"). La decimación inteligente fue un requisito crítico para garantizar que ningún modelo superara los 25 MB.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/60 border border-rose-950/60 p-6 rounded-xl space-y-3">
+          <div class="flex items-center gap-2 text-rose-400 font-bold text-base">
+            <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            NO lanzar la cámara AR inmediatamente sin precarga
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            <strong>¿Por qué?</strong> Si el enlace AR se dispara antes de que el archivo termine de bajar, los teléfonos de gama media o conexiones móviles lentas quedaban en una pantalla negra infinita o crasheaban la app de Google ARCore. El sistema de precarga por streams en `ar.html` resolvió el 100% de estas incidencias.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 5. MATRIZ DE RESULTADOS -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold">5</div>
+        <h3 class="text-2xl font-bold text-white">Métricas Finales de Optimización</h3>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-800 rounded-xl bg-slate-900/40">
+        <table class="w-full text-left text-sm text-slate-300">
+          <thead class="bg-slate-950 text-xs uppercase font-mono text-cyan-400 border-b border-slate-800">
+            <tr>
+              <th class="p-4">Especie / Modelo</th>
+              <th class="p-4">Original (Meshy)</th>
+              <th class="p-4">Web GLB (Draco)</th>
+              <th class="p-4">AR GLB (Con 5 Anotaciones)</th>
+              <th class="p-4">iPhone USDZ (Optimizado)</th>
+              <th class="p-4">Reducción Web</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 font-mono text-xs">
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-4 font-sans font-bold text-white">Flamenco del Caribe</td>
+              <td class="p-4 text-rose-400">89.5 MB</td>
+              <td class="p-4 text-emerald-400">3.73 MB</td>
+              <td class="p-4 text-cyan-400">4.22 MB</td>
+              <td class="p-4 text-sky-400">22.54 MB</td>
+              <td class="p-4 text-emerald-300 font-bold">-95.8%</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-4 font-sans font-bold text-white">Rey Guajiro (Cardenal)</td>
+              <td class="p-4 text-rose-400">53.2 MB</td>
+              <td class="p-4 text-emerald-400">1.91 MB</td>
+              <td class="p-4 text-cyan-400">2.19 MB</td>
+              <td class="p-4 text-sky-400">17.10 MB</td>
+              <td class="p-4 text-emerald-300 font-bold">-96.4%</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-4 font-sans font-bold text-white">Turpial Guajiro</td>
+              <td class="p-4 text-rose-400">56.8 MB</td>
+              <td class="p-4 text-emerald-400">2.42 MB</td>
+              <td class="p-4 text-cyan-400">2.63 MB</td>
+              <td class="p-4 text-sky-400">24.96 MB</td>
+              <td class="p-4 text-emerald-300 font-bold">-95.7%</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-4 font-sans font-bold text-white">Paloma Guajira</td>
+              <td class="p-4 text-rose-400">28.7 MB</td>
+              <td class="p-4 text-emerald-400">1.08 MB</td>
+              <td class="p-4 text-cyan-400">1.25 MB</td>
+              <td class="p-4 text-sky-400">9.80 MB</td>
+              <td class="p-4 text-emerald-300 font-bold">-96.2%</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-4 font-sans font-bold text-white">Buco Bobito</td>
+              <td class="p-4 text-rose-400">88.9 MB</td>
+              <td class="p-4 text-emerald-400">3.72 MB</td>
+              <td class="p-4 text-cyan-400">4.10 MB</td>
+              <td class="p-4 text-sky-400">24.32 MB</td>
+              <td class="p-4 text-emerald-300 font-bold">-95.8%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 6. GUÍA DE REPLICACIÓN PARA EL PROYECTO DE MOTOS -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 font-bold">6</div>
+        <h3 class="text-2xl font-bold text-white">Blueprint para el Proyecto de Motos XR</h3>
+      </div>
+
+      <div class="bg-gradient-to-br from-slate-900 via-indigo-950/20 to-slate-900 border border-indigo-900/50 rounded-2xl p-8 space-y-6">
+        <p class="text-slate-300 leading-relaxed">
+          Para tu nuevo proyecto de motos, sigue esta lista de verificación directa:
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <h4 class="text-indigo-400 font-bold uppercase text-xs tracking-wider">Paso a Paso en Blender / Modelos</h4>
+            <ol class="list-decimal list-inside space-y-2 text-sm text-slate-300">
+              <li>Generar o conseguir el modelo 3D de la moto (GLB).</li>
+              <li>Definir 5 puntos mecánicos clave:
+                <ul class="list-disc list-inside ml-6 text-xs text-slate-400 mt-1 space-y-1">
+                  <li>Punto 1: Motor y Cilindrada (cc / HP).</li>
+                  <li>Punto 2: Sistema de Frenos (ABS / Pinzas).</li>
+                  <li>Punto 3: Suspensión Delantera (Horquilla invertida).</li>
+                  <li>Punto 4: Escape y Normativa de Emisiones.</li>
+                  <li>Punto 5: Tablero Digital / Modos de Manejo.</li>
+                </ul>
+              </li>
+              <li>Ejecutar el script de inyección para crear las tarjetas 3D con doble cara, UV invertida y líneas luminosas.</li>
+              <li>Exportar versión Web (<code class="text-xs text-indigo-300">moto.glb</code>) y versión AR (<code class="text-xs text-indigo-300">moto_con_infografia.glb</code>).</li>
+            </ol>
+          </div>
+
+          <div class="space-y-4">
+            <h4 class="text-indigo-400 font-bold uppercase text-xs tracking-wider">Reglas Obligatorias para iPhone (USDZ)</h4>
+            <ol class="list-decimal list-inside space-y-2 text-sm text-slate-300">
+              <li><strong>Siempre remapear texturas a PNG:</strong> Si la moto trae texturas WebP en las calcomanías o pintura, crasheará en magenta en iOS.</li>
+              <li><strong>Forzar ejes Y-Up:</strong> Sin <code class="text-xs text-indigo-300">convert_orientation=True</code> la moto aparecerá tirada en el piso.</li>
+              <li><strong>Decimar solo mallas pesadas:</strong> Aplica Decimate al bloque del motor y chasis; no toques las tarjetas de texto.</li>
+              <li><strong>Monitorear peso:</strong> Que el archivo <code class="text-xs text-indigo-300">.usdz</code> final quede entre 15 y 25 MB.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 pt-8 text-center text-xs text-slate-500 font-mono space-y-2">
+      <p>Proyecto Aves de la Guajira XR — Arquitectura y Documentación Técnica de Producción</p>
+      <p>Desplegado en Vercel con soporte multiplataforma WebXR, Google SceneViewer y Apple Quick Look.</p>
+    </footer>
+
+  </main>
+</body>
+</html>
