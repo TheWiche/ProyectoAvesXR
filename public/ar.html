@@ -21,21 +21,21 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 20px;
       text-align: center;
     }
     .launcher-card {
-      max-width: 420px;
+      max-width: 440px;
       width: 100%;
-      background: #112014;
-      border: 1px solid #2b442b;
-      border-radius: 20px;
+      background: linear-gradient(165deg, #132415 0%, #0c180e 100%);
+      border: 1px solid #2e4c2e;
+      border-radius: 24px;
       padding: 32px 24px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      box-shadow: 0 16px 50px rgba(0,0,0,0.7), 0 0 20px rgba(76,175,120,0.15);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 18px;
+      gap: 16px;
     }
     .spinner {
       width: 52px;
@@ -44,10 +44,35 @@
       border-top-color: var(--glow);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
+      margin: 10px 0;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .bird-preview {
+      width: 140px;
+      height: 140px;
+      border-radius: 20px;
+      background: rgba(0,0,0,0.3);
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(212, 168, 67, 0.3);
+    }
+    .bird-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6));
+    }
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
     h1 {
-      font-size: 1.35rem;
+      font-size: 1.4rem;
       font-weight: 800;
       color: #fff;
     }
@@ -60,20 +85,21 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
       width: 100%;
-      padding: 14px 20px;
-      border-radius: 12px;
+      padding: 15px 20px;
+      border-radius: 14px;
       background: linear-gradient(135deg, #2e7d32, #1b5e20);
       color: #fff;
       text-decoration: none;
       font-weight: 700;
-      font-size: 0.95rem;
-      box-shadow: 0 4px 15px rgba(46,125,50,0.4);
-      margin-top: 8px;
+      font-size: 0.98rem;
+      box-shadow: 0 4px 18px rgba(46,125,50,0.5);
       border: none;
       cursor: pointer;
+      transition: .2s ease;
     }
+    .btn-manual:active { transform: scale(0.98); }
     .btn-secondary {
       background: transparent;
       color: var(--accent);
@@ -83,22 +109,46 @@
       font-size: 0.85rem;
       font-weight: 600;
       text-decoration: none;
+      transition: .2s ease;
+      margin-top: 4px;
+    }
+    .btn-secondary:hover { background: rgba(212, 168, 67, 0.15); }
+    .hint-text {
+      font-size: 0.78rem;
+      color: #7b967b;
+      margin-top: 4px;
     }
   </style>
 </head>
 <body>
 
   <div class="launcher-card">
-    <div class="spinner" id="spinner"></div>
-    <h1 id="bird-title">Iniciando Realidad Aumentada...</h1>
-    <p id="status-msg">Abriendo la cámara de tu celular para proyectar el ave con sus etiquetas en 3D.</p>
+    <div class="badge">✦ REALIDAD AUMENTADA ✦</div>
 
-    <button id="btn-launch-ar" class="btn-manual" style="display: none;">
-      📷 Abrir Cámara en AR
+    <div class="bird-preview" id="bird-preview-wrap" style="display: none;">
+      <img id="bird-poster-img" src="" alt="Previsualización del ave" />
+    </div>
+
+    <div class="spinner" id="spinner"></div>
+
+    <h1 id="bird-title">Iniciando Realidad Aumentada...</h1>
+    <p id="status-msg">Preparando el modelo 3D para proyectarlo en tu espacio.</p>
+
+    <!-- Android Scene Viewer Button -->
+    <button id="btn-launch-android" class="btn-manual" style="display: none;">
+      📷 Abrir Cámara en AR (Android)
     </button>
 
+    <!-- iOS Native Quick Look Link (Apple Standard: <a rel="ar" href="..."><img src="..."/><span>...</span></a>) -->
+    <a id="btn-launch-ios" rel="ar" href="#" class="btn-manual" style="display: none;">
+      <img id="ios-ar-thumb" src="" alt="" style="width: 28px; height: 28px; object-fit: cover; border-radius: 6px; display: inline-block;" />
+      <span>👁️ Ver en tu espacio (iPhone AR)</span>
+    </a>
+
+    <p class="hint-text" id="platform-hint"></p>
+
     <a id="btn-gallery" href="index.html" class="btn-secondary">
-      Volver al visor web 3D
+      🌐 Ver modelo 3D interactivo en la web
     </a>
   </div>
 
@@ -107,27 +157,32 @@
       buco: {
         name: 'Buco Gargantirrufo',
         annotatedGlb: 'models/annotated/buco_con_infografia.glb',
-        usdz: 'models/buco.usdz'
+        usdz: 'models/buco.usdz',
+        poster: 'posters/buco.png'
       },
       flamenco: {
         name: 'Flamenco Americano',
         annotatedGlb: 'models/annotated/flamenco_con_infografia.glb',
-        usdz: 'models/flamenco.usdz'
+        usdz: 'models/flamenco.usdz',
+        poster: 'posters/flamenco.png'
       },
       paloma: {
         name: 'Palomita Escamosa',
         annotatedGlb: 'models/annotated/paloma_con_infografia.glb',
-        usdz: 'models/paloma.usdz'
+        usdz: 'models/paloma.usdz',
+        poster: 'posters/paloma.png'
       },
       rey_guajiro: {
         name: 'Rey Guajiro',
         annotatedGlb: 'models/annotated/rey_guajiro_con_infografia.glb',
-        usdz: 'models/rey_guajiro.usdz'
+        usdz: 'models/rey_guajiro.usdz',
+        poster: 'posters/rey_guajiro.png'
       },
       turpial: {
         name: 'Turpial de La Guajira',
         annotatedGlb: 'models/annotated/turpial_con_infografia.glb',
-        usdz: 'models/turpial.usdz'
+        usdz: 'models/turpial.usdz',
+        poster: 'posters/turpial.png'
       }
     };
 
@@ -141,48 +196,61 @@
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const origin = isLocal ? 'https://aves-guajira-xr.vercel.app' : window.location.origin;
     const modelFullUrl = `${origin}/${bird.annotatedGlb}`;
+    const usdzUrl = `${origin}/${bird.usdz}`;
+    const posterUrl = `${origin}/${bird.poster}`;
     const fallbackWebUrl = `${origin}/?bird=${birdKey}`;
 
     const isAndroid = /android/i.test(navigator.userAgent);
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
 
-    function triggerSceneViewer() {
-      // Direct Scene Viewer intent on Android - launches camera AR instantly!
-      const sceneViewerIntent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelFullUrl)}&mode=ar_only&title=${encodeURIComponent(bird.name)}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackWebUrl)};end;`;
-      window.location.href = sceneViewerIntent;
-    }
-
-    function triggerQuickLook() {
-      const usdzUrl = `${origin}/${bird.usdz}`;
-      const anchor = document.createElement('a');
-      anchor.setAttribute('rel', 'ar');
-      anchor.appendChild(document.createElement('img'));
-      anchor.setAttribute('href', usdzUrl);
-      document.body.appendChild(anchor);
-      anchor.click();
-    }
-
-    const launchBtn = document.getElementById('btn-launch-ar');
+    const spinner = document.getElementById('spinner');
+    const previewWrap = document.getElementById('bird-preview-wrap');
+    const posterImg = document.getElementById('bird-poster-img');
     const statusMsg = document.getElementById('status-msg');
+    const platformHint = document.getElementById('platform-hint');
 
-    if (isAndroid) {
-      statusMsg.textContent = 'Lanzando Google Scene Viewer AR... Si no abre automáticamente, presiona el botón abajo.';
-      launchBtn.style.display = 'inline-flex';
-      launchBtn.addEventListener('click', triggerSceneViewer);
-      // Auto launch
-      setTimeout(triggerSceneViewer, 300);
-    } else if (isIOS) {
-      statusMsg.textContent = 'Dispositivo iOS detectado. Presiona el botón para abrir en Realidad Aumentada Quick Look.';
-      launchBtn.style.display = 'inline-flex';
-      launchBtn.textContent = '👁️ Abrir en Realidad Aumentada (iOS)';
-      launchBtn.addEventListener('click', triggerQuickLook);
-      setTimeout(triggerQuickLook, 400);
+    // Show preview poster
+    posterImg.src = posterUrl;
+    previewWrap.style.display = 'flex';
+
+    if (isIOS) {
+      // iOS / Apple Quick Look mode
+      spinner.style.display = 'none';
+      statusMsg.textContent = 'Toca el botón abajo para proyectar el ave en tu espacio con la cámara de tu iPhone / iPad:';
+      platformHint.textContent = 'Compatible con Apple ARKit Quick Look en Safari iOS.';
+
+      const iosBtn = document.getElementById('btn-launch-ios');
+      const iosThumb = document.getElementById('ios-ar-thumb');
+
+      iosBtn.href = usdzUrl;
+      iosThumb.src = posterUrl;
+      iosBtn.style.display = 'inline-flex';
+
+    } else if (isAndroid) {
+      // Android Scene Viewer mode
+      statusMsg.textContent = 'Abriendo la cámara de tu celular con Google Scene Viewer AR...';
+      platformHint.textContent = 'Compatible con Google Play Services para RA (ARCore).';
+
+      const androidBtn = document.getElementById('btn-launch-android');
+      androidBtn.style.display = 'inline-flex';
+
+      function triggerSceneViewer() {
+        const sceneViewerIntent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelFullUrl)}&mode=ar_only&title=${encodeURIComponent(bird.name)}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackWebUrl)};end;`;
+        window.location.href = sceneViewerIntent;
+      }
+
+      androidBtn.addEventListener('click', triggerSceneViewer);
+      // Auto launch on Android
+      setTimeout(triggerSceneViewer, 400);
+
     } else {
-      // Desktop / PC - redirect to 3D interactive gallery
-      statusMsg.textContent = 'Para Realidad Aumentada se requiere un teléfono móvil. Redirigiendo a la galería 3D...';
+      // Desktop / PC
+      spinner.style.display = 'none';
+      statusMsg.textContent = 'Para la experiencia de Realidad Aumentada interactiva abre este enlace en tu celular.';
+      platformHint.textContent = 'Redirigiendo al visor 3D para computadora...';
       setTimeout(() => {
         window.location.href = fallbackWebUrl;
-      }, 1000);
+      }, 1200);
     }
   </script>
 </body>

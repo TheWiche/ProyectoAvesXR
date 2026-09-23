@@ -319,7 +319,7 @@ function launchAR () {
   if (!bird) return
 
   const isAndroid = /android/i.test(navigator.userAgent)
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
+  const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream
 
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   const siteUrl = isLocal ? 'https://aves-guajira-xr.vercel.app' : window.location.origin
@@ -335,12 +335,25 @@ function launchAR () {
     const sceneViewerIntent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelFullUrl)}&mode=ar_only&title=${encodeURIComponent(bird.commonName)}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackWebUrl)};end;`
     window.location.href = sceneViewerIntent
   } else if (isIOS) {
-    // Direct Quick Look on iOS Safari
+    // iOS Safari Quick Look:
+    // 1. Try model-viewer's native activateAR()
+    if (viewer && typeof viewer.activateAR === 'function') {
+      try {
+        viewer.activateAR()
+        return
+      } catch (err) {
+        console.warn('[AR] viewer.activateAR failed, fallback to native anchor:', err)
+      }
+    }
+
+    // 2. Direct Apple Quick Look anchor (must include valid img child)
     const usdzUrl = `${siteUrl}/${bird.iosSrc}`
     const a = document.createElement('a')
     a.setAttribute('rel', 'ar')
     a.setAttribute('href', usdzUrl)
-    a.appendChild(document.createElement('img'))
+    const img = document.createElement('img')
+    img.setAttribute('src', `${siteUrl}/${bird.poster}`)
+    a.appendChild(img)
     document.body.appendChild(a)
     a.click()
     setTimeout(() => a.remove(), 1000)
